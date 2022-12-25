@@ -404,9 +404,12 @@ impl fmt::Display for VertHexDir {
 
 /// Relative directions are directions like 'left' and 'right'.
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
+#[non_exhaustive]
 pub enum Relative {
     Left,
     Right,
+    Up,
+    Down,
 }
 
 impl Display for Relative {
@@ -414,6 +417,8 @@ impl Display for Relative {
         let s = match self {
             Self::Left => "Left",
             Self::Right => "Right",
+            Self::Up => "Up",
+            Self::Down => "Down",
         };
 
         s.fmt(f)
@@ -427,6 +432,8 @@ impl TryFrom<char> for Relative {
         match value {
             'L' | 'l' => Ok(Self::Left),
             'R' | 'r' => Ok(Self::Right),
+            'U' | 'u' => Ok(Self::Up),
+            'D' | 'd' => Ok(Self::Down),
             _ => Err(DirectionError::RelativeParseError(value.to_string())),
         }
     }
