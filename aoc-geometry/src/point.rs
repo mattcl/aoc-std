@@ -322,8 +322,8 @@ where
 /// Locations are special (row, colum) points mainly used as indexes into grids.
 #[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash)]
 pub struct Location {
-    row: usize,
-    col: usize,
+    pub row: usize,
+    pub col: usize,
 }
 
 impl Location {
