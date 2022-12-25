@@ -55,6 +55,64 @@ where
     pub fn new(x: T, y: T) -> Self {
         Self { x, y }
     }
+
+    /// Yield a point that is North of this one.
+    ///
+    /// We consider North to have a y value one larger.
+    pub fn north(&self) -> Self {
+        (self.x, self.y + T::one()).into()
+    }
+
+    /// Yield a point that is North-east of this one.
+    ///
+    /// We consider North-east to have an x and y value one larger.
+    pub fn north_east(&self) -> Self {
+        (self.x + T::one(), self.y + T::one()).into()
+    }
+
+    /// Yield a point that is North-west of this one.
+    ///
+    /// We consider North-west to have an x value one smaller and y value one
+    /// larger.
+    pub fn north_west(&self) -> Self {
+        (self.x - T::one(), self.y + T::one()).into()
+    }
+
+    /// Yield a point that is South of this one.
+    ///
+    /// We consider South to have a y value one smaller.
+    pub fn south(&self) -> Self {
+        (self.x, self.y - T::one()).into()
+    }
+
+    /// Yield a point that is South-east of this one.
+    ///
+    /// We consider South-east to have an x value one larger and a y value one
+    /// smaller.
+    pub fn south_east(&self) -> Self {
+        (self.x + T::one(), self.y - T::one()).into()
+    }
+
+    /// Yield a point that is South-west of this one.
+    ///
+    /// We consider South-west to have an x and y value one smaller.
+    pub fn south_west(&self) -> Self {
+        (self.x - T::one(), self.y - T::one()).into()
+    }
+
+    /// Yield a point that is East of this one.
+    ///
+    /// We consider East to have an x value one larger.
+    pub fn east(&self) -> Self {
+        (self.x + T::one(), self.y).into()
+    }
+
+    /// Yield a point that is West of this one.
+    ///
+    /// We consider West to have an x value one smaller.
+    pub fn west(&self) -> Self {
+        (self.x - T::one(), self.y).into()
+    }
 }
 
 impl<T> From<(T, T)> for Point2D<T>
@@ -272,6 +330,50 @@ impl Location {
     pub fn new(row: usize, col: usize) -> Self {
         Self { row, col }
     }
+
+    /// Attempt to get a location that would be North of this one.
+    ///
+    /// We consider North to be a _lower_ row.
+    ///
+    /// This returns `None` if row is 0.
+    pub fn north(&self) -> Option<Self> {
+        if self.row == 0 {
+            None
+        } else {
+            Some((self.row - 1, self.col).into())
+        }
+    }
+
+    /// Attempt to get a location that would be South of this one.
+    ///
+    /// We consider South to be a _higher_ row.
+    ///
+    /// This _always_ returns a value.
+    pub fn south(&self) -> Option<Self> {
+        Some((self.row + 1, self.col).into())
+    }
+
+    /// Attempt to get a location that would be East of this one.
+    ///
+    /// We consider East to be a _higher_ col.
+    ///
+    /// This _always_ returns a value.
+    pub fn east(&self) -> Option<Self> {
+        Some((self.row, self.col + 1).into())
+    }
+
+    /// Attempt to get a location that would be West of this one.
+    ///
+    /// We consider West to be a _lower_ col.
+    ///
+    /// This returns `None` if col is 0
+    pub fn west(&self) -> Option<Self> {
+        if self.col == 0 {
+            None
+        } else {
+            Some((self.row, self.col - 1).into())
+        }
+    }
 }
 
 impl From<(usize, usize)> for Location {
@@ -307,6 +409,70 @@ mod tests {
             let p2 = Point2D::new(5_u16, 7);
             assert_eq!(p1.manhattan_dist(&p2), 7);
             assert_eq!(p2.manhattan_dist(&p1), 7);
+        }
+
+        #[test]
+        fn north() {
+            let p: Point2D<i32> = Point2D::default();
+            let expected = Point2D::new(0, 1);
+
+            assert_eq!(p.north(), expected);
+        }
+
+        #[test]
+        fn north_east() {
+            let p: Point2D<i32> = Point2D::default();
+            let expected = Point2D::new(1, 1);
+
+            assert_eq!(p.north_east(), expected);
+        }
+
+        #[test]
+        fn north_west() {
+            let p: Point2D<i32> = Point2D::default();
+            let expected = Point2D::new(-1, 1);
+
+            assert_eq!(p.north_west(), expected);
+        }
+
+        #[test]
+        fn south() {
+            let p: Point2D<i32> = Point2D::default();
+            let expected = Point2D::new(0, -1);
+
+            assert_eq!(p.south(), expected);
+        }
+
+        #[test]
+        fn south_east() {
+            let p: Point2D<i32> = Point2D::default();
+            let expected = Point2D::new(1, -1);
+
+            assert_eq!(p.south_east(), expected);
+        }
+
+        #[test]
+        fn south_west() {
+            let p: Point2D<i32> = Point2D::default();
+            let expected = Point2D::new(-1, -1);
+
+            assert_eq!(p.south_west(), expected);
+        }
+
+        #[test]
+        fn east() {
+            let p: Point2D<i32> = Point2D::default();
+            let expected = Point2D::new(1, 0);
+
+            assert_eq!(p.east(), expected);
+        }
+
+        #[test]
+        fn west() {
+            let p: Point2D<i32> = Point2D::default();
+            let expected = Point2D::new(-1, 0);
+
+            assert_eq!(p.west(), expected);
         }
     }
 
@@ -362,6 +528,40 @@ mod tests {
             let p2 = Location::new(7, 1);
             assert_eq!(p1.manhattan_dist(&p2), 8);
             assert_eq!(p2.manhattan_dist(&p1), 8);
+        }
+
+        #[test]
+        fn north() {
+            let p = Location::default();
+            assert_eq!(p.north(), Option::None);
+
+            let p = Location::new(12, 6);
+            let expected = Location::new(11, 6);
+            assert_eq!(p.north(), Some(expected));
+        }
+
+        #[test]
+        fn south() {
+            let p = Location::new(12, 6);
+            let expected = Location::new(13, 6);
+            assert_eq!(p.south(), Some(expected));
+        }
+
+        #[test]
+        fn east() {
+            let p = Location::new(12, 6);
+            let expected = Location::new(12, 7);
+            assert_eq!(p.east(), Some(expected));
+        }
+
+        #[test]
+        fn west() {
+            let p = Location::default();
+            assert_eq!(p.west(), Option::None);
+
+            let p = Location::new(12, 6);
+            let expected = Location::new(12, 5);
+            assert_eq!(p.west(), Some(expected));
         }
     }
 }

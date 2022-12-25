@@ -8,6 +8,7 @@ publish.workspace = true
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+# aoc-directions = { path = "../aoc-directions" }
 num = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
