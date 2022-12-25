@@ -5,6 +5,7 @@ members = [
     "aoc-std",
 
     # support
+    "aoc-conversions",
     "aoc-directions",
     "aoc-geometry"
 ]
