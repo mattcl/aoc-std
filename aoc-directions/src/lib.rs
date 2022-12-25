@@ -16,7 +16,11 @@
 //! West      = 64,
 //! NorthWest = 128,
 //! ```
-use std::{convert::TryFrom, fmt, str::FromStr};
+use std::{
+    convert::TryFrom,
+    fmt::{self, Display},
+    str::FromStr,
+};
 
 use thiserror::Error;
 
@@ -34,6 +38,9 @@ pub enum DirectionError {
 
     #[error("Cannot make VertHexDir from {0}")]
     VertHexParseError(String),
+
+    #[error("Cannot make Relative from {0}")]
+    RelativeParseError(String),
 }
 
 /// Driections is an enum of both the Cardinal and Ordinal directions.
@@ -392,6 +399,36 @@ impl FromStr for VertHexDir {
 impl fmt::Display for VertHexDir {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         Direction::from(self).fmt(f)
+    }
+}
+
+/// Relative directions are directions like 'left' and 'right'.
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
+pub enum Relative {
+    Left,
+    Right,
+}
+
+impl Display for Relative {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let s = match self {
+            Self::Left => "Left",
+            Self::Right => "Right",
+        };
+
+        s.fmt(f)
+    }
+}
+
+impl TryFrom<char> for Relative {
+    type Error = DirectionError;
+
+    fn try_from(value: char) -> Result<Self, Self::Error> {
+        match value {
+            'L' | 'l' => Ok(Self::Left),
+            'R' | 'r' => Ok(Self::Right),
+            _ => Err(DirectionError::RelativeParseError(value.to_string())),
+        }
     }
 }
 
