@@ -71,7 +71,7 @@ where
     }
 }
 
-pub fn dijkstra<N, C, E, I, S>(start: &N, edges: &mut E, stop: &mut S) -> DijkstraResult<N, C>
+pub fn dijkstra<N, C, E, I, S>(start: &N, edges: &E, stop: &mut S) -> DijkstraResult<N, C>
 where
     N: Clone + Eq + Hash,
     C: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
