@@ -64,7 +64,8 @@ where
                 goal_index,
                 examined_nodes,
                 ..
-            } => Ok(path_len(*goal_index, examined_nodes)),
+            } => Ok(path_len(*goal_index, examined_nodes) - 1), // we need to take 1 off because of
+                                                                // the root node
             _ => Err(DijkstraError::NoPath),
         }
     }
