@@ -283,22 +283,25 @@ macro_rules! impl_bounded_neighbors_iter {
                 /// Returns an iterator over the valid cardinal neighbors of this point.
                 ///
                 /// Order is N -> E -> S -> W
-                pub fn cardinal_neighbors(&self) -> impl Iterator<Item = Self> + '_ {
+                pub fn cardinal_neighbors(&self) -> impl Iterator<Item = Self> {
+                    let x = self.x;
+                    let y = self.y;
+
                     Self::CARD_NEIGHBOR_OFFSETS
                         .iter()
-                        .filter_map(|(dx, dy)| {
-                            if self.x == 0 && *dx < 0 {
+                        .filter_map(move |(dx, dy)| {
+                            if x == 0 && *dx < 0 {
                                 return None;
                             }
 
-                            if self.y == 0 && *dy < 0 {
+                            if y == 0 && *dy < 0 {
                                 return None;
                             }
 
                             Some(
                                 Self::new(
-                                    (self.x as $y + dx) as $x,
-                                    (self.y as $y + dy) as $x,
+                                    (x as $y + dx) as $x,
+                                    (y as $y + dy) as $x,
                                 )
                             )
                         })
@@ -307,22 +310,25 @@ macro_rules! impl_bounded_neighbors_iter {
                 /// Returns an iterator over the valid cardinal and ordinal neighbors.
                 ///
                 /// Order is N -> NE -> E -> SE -> S -> SW -> W -> NW
-                pub fn neighbors(&self) -> impl Iterator<Item = Self> + '_ {
+                pub fn neighbors(&self) -> impl Iterator<Item = Self> {
+                    let x = self.x;
+                    let y = self.y;
+
                     Self::NEIGHBOR_OFFSETS
                         .iter()
-                        .filter_map(|(dx, dy)| {
-                            if self.x == 0 && *dx < 0 {
+                        .filter_map(move |(dx, dy)| {
+                            if x == 0 && *dx < 0 {
                                 return None;
                             }
 
-                            if self.y == 0 && *dy < 0 {
+                            if y == 0 && *dy < 0 {
                                 return None;
                             }
 
                             Some(
                                 Self::new(
-                                    (self.x as $y + dx) as $x,
-                                    (self.y as $y + dy) as $x,
+                                    (x as $y + dx) as $x,
+                                    (y as $y + dy) as $x,
                                 )
                             )
                         })
@@ -555,20 +561,23 @@ impl Location {
     /// Returns an iterator over the valid cardinal neighbors of this location.
     ///
     /// Order is N -> E -> S -> W
-    pub fn cardinal_neighbors(&self) -> impl Iterator<Item = Self> + '_ {
+    pub fn cardinal_neighbors(&self) -> impl Iterator<Item = Self> {
+        let row = self.row;
+        let col = self.col;
+
         LOC_CARD_NEIGHBOR_OFFSETS
             .iter()
-            .filter_map(|(dr, dc)| {
-                if *dr < 0 && self.row == 0 {
+            .filter_map(move |(dr, dc)| {
+                if *dr < 0 && row == 0 {
                     return None;
                 }
 
-                if *dc < 0 && self.col == 0 {
+                if *dc < 0 && col == 0 {
                     return None;
                 }
 
                 Some(
-                    ((self.row as i64 + *dr) as usize, (self.col as i64 + *dc) as usize).into()
+                    ((row as i64 + *dr) as usize, (col as i64 + *dc) as usize).into()
                 )
             })
     }
@@ -576,20 +585,23 @@ impl Location {
     /// Returns an iterator over the valid cardinal and ordinal neighbors.
     ///
     /// Order is N -> NE -> E -> SE -> S -> SW -> W -> NW
-    pub fn neighbors(&self) -> impl Iterator<Item = Self> + '_ {
+    pub fn neighbors(&self) -> impl Iterator<Item = Self> {
+        let row = self.row;
+        let col = self.col;
+
         LOC_NEIGHBOR_OFFSETS
             .iter()
-            .filter_map(|(dr, dc)| {
-                if *dr < 0 && self.row == 0 {
+            .filter_map(move |(dr, dc)| {
+                if *dr < 0 && row == 0 {
                     return None;
                 }
 
-                if *dc < 0 && self.col == 0 {
+                if *dc < 0 && col == 0 {
                     return None;
                 }
 
                 Some(
-                    ((self.row as i64 + *dr) as usize, (self.col as i64 + *dc) as usize).into()
+                    ((row as i64 + *dr) as usize, (col as i64 + *dc) as usize).into()
                 )
             })
     }
