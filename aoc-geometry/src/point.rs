@@ -11,6 +11,7 @@ use std::{
     ops::{Add, Deref},
 };
 
+use aoc_directions::{CardinalNeighbors, OrdinalNeighbors, BoundedOrdinalNeighbors, BoundedCardinalNeighbors};
 use num::{Bounded, Num};
 
 /// A colleciton of basic things that all "points" provide.
@@ -55,64 +56,6 @@ where
     pub fn new(x: T, y: T) -> Self {
         Self { x, y }
     }
-
-    /// Yield a point that is North of this one.
-    ///
-    /// We consider North to have a y value one larger.
-    pub fn north(&self) -> Self {
-        (self.x, self.y + T::one()).into()
-    }
-
-    /// Yield a point that is North-east of this one.
-    ///
-    /// We consider North-east to have an x and y value one larger.
-    pub fn north_east(&self) -> Self {
-        (self.x + T::one(), self.y + T::one()).into()
-    }
-
-    /// Yield a point that is North-west of this one.
-    ///
-    /// We consider North-west to have an x value one smaller and y value one
-    /// larger.
-    pub fn north_west(&self) -> Self {
-        (self.x - T::one(), self.y + T::one()).into()
-    }
-
-    /// Yield a point that is South of this one.
-    ///
-    /// We consider South to have a y value one smaller.
-    pub fn south(&self) -> Self {
-        (self.x, self.y - T::one()).into()
-    }
-
-    /// Yield a point that is South-east of this one.
-    ///
-    /// We consider South-east to have an x value one larger and a y value one
-    /// smaller.
-    pub fn south_east(&self) -> Self {
-        (self.x + T::one(), self.y - T::one()).into()
-    }
-
-    /// Yield a point that is South-west of this one.
-    ///
-    /// We consider South-west to have an x and y value one smaller.
-    pub fn south_west(&self) -> Self {
-        (self.x - T::one(), self.y - T::one()).into()
-    }
-
-    /// Yield a point that is East of this one.
-    ///
-    /// We consider East to have an x value one larger.
-    pub fn east(&self) -> Self {
-        (self.x + T::one(), self.y).into()
-    }
-
-    /// Yield a point that is West of this one.
-    ///
-    /// We consider West to have an x value one smaller.
-    pub fn west(&self) -> Self {
-        (self.x - T::one(), self.y).into()
-    }
 }
 
 impl<T> From<(T, T)> for Point2D<T>
@@ -150,6 +93,263 @@ where
         (self.x.max(other.x) - self.x.min(other.x)) + (self.y.max(other.y) - self.y.min(other.y))
     }
 }
+
+/// Implement CardinalNeighbors for the specified types
+macro_rules! impl_cardinal {
+    ($($x:ty),+ $(,)?) => {
+        $(
+            impl CardinalNeighbors for Point2D<$x> {
+                fn north(&self) -> Self {
+                    (self.x, self.y + 1).into()
+                }
+
+                fn south(&self) -> Self {
+                    (self.x, self.y - 1).into()
+                }
+
+                fn east(&self) -> Self {
+                    (self.x + 1, self.y).into()
+                }
+
+                fn west(&self) -> Self {
+                    (self.x - 1, self.y).into()
+                }
+            }
+        )*
+    };
+}
+
+/// Implement BoundedCardinalNeighbors for the specified types
+macro_rules! impl_bounded_cardinal {
+    ($($x:ty),+ $(,)?) => {
+        $(
+            impl BoundedCardinalNeighbors for Point2D<$x> {
+                fn north(&self) -> Option<Self> {
+                    Some((self.x, self.y + 1).into())
+                }
+
+                fn south(&self) -> Option<Self> {
+                    if self.y == 0 {
+                        None
+                    } else {
+                        Some((self.x, self.y - 1).into())
+                    }
+                }
+
+                fn east(&self) -> Option<Self> {
+                    Some((self.x + 1, self.y).into())
+                }
+
+                fn west(&self) -> Option<Self> {
+                    if self.x == 0 {
+                        None
+                    } else {
+                        Some((self.x - 1, self.y).into())
+                    }
+                }
+            }
+        )*
+    };
+}
+
+/// Implement OrdinalNeighbors for the specified types
+macro_rules! impl_ordinal {
+    ($($x:ty),+ $(,)?) => {
+        $(
+            impl OrdinalNeighbors for Point2D<$x> {
+                fn north_east(&self) -> Self {
+                    (self.x + 1, self.y + 1).into()
+                }
+
+                fn north_west(&self) -> Self {
+                    (self.x - 1, self.y + 1).into()
+                }
+
+                fn south_east(&self) -> Self {
+                    (self.x + 1, self.y - 1).into()
+                }
+
+                fn south_west(&self) -> Self {
+                    (self.x - 1, self.y - 1).into()
+                }
+            }
+        )*
+    };
+}
+
+/// Implement BoundedOrdinalNeighbors for the specified types
+macro_rules! impl_bounded_ordinal {
+    ($($x:ty),+ $(,)?) => {
+        $(
+            impl BoundedOrdinalNeighbors for Point2D<$x> {
+                fn north_east(&self) -> Option<Self> {
+                    Some((self.x + 1, self.y + 1).into())
+                }
+
+                fn north_west(&self) -> Option<Self> {
+                    if self.x == 0 {
+                        None
+                    } else {
+                        Some((self.x - 1, self.y + 1).into())
+                    }
+                }
+
+                fn south_east(&self) -> Option<Self> {
+                    if self.y == 0 {
+                        None
+                    } else {
+                        Some((self.x + 1, self.y - 1).into())
+                    }
+                }
+
+                fn south_west(&self) -> Option<Self> {
+                    if self.x == 0 || self.y == 0 {
+                        None
+                    } else {
+                        Some((self.x - 1, self.y - 1).into())
+                    }
+                }
+            }
+        )*
+    };
+}
+
+macro_rules! impl_neighbors_iter {
+    ($($x:ty),+ $(,)?) => {
+        $(
+            impl Point2D<$x> {
+                const CARD_NEIGHBOR_OFFSETS: [($x, $x); 4] = [
+                    (0, 1),
+                    (1, 0),
+                    (0, -1),
+                    (-1, 0),
+                ];
+
+                const NEIGHBOR_OFFSETS: [($x, $x); 8] = [
+                    (0, 1),
+                    (1, 1),
+                    (1, 0),
+                    (1, -1),
+                    (0, -1),
+                    (-1, -1),
+                    (-1, 0),
+                    (-1, 1),
+                ];
+
+                /// Returns an iterator over the valid cardinal neighbors of this point.
+                ///
+                /// Order is N -> E -> S -> W
+                pub fn cardinal_neighbors(&self) -> impl Iterator<Item = Self> + '_ {
+                    Self::CARD_NEIGHBOR_OFFSETS
+                        .iter()
+                        .map(|(dx, dy)| Self::new(self.x + dx, self.y + dy))
+                }
+
+                /// Returns an iterator over the valid cardinal and ordinal neighbors.
+                ///
+                /// Order is N -> NE -> E -> SE -> S -> SW -> W -> NW
+                pub fn neighbors(&self) -> impl Iterator<Item = Self> + '_ {
+                    Self::NEIGHBOR_OFFSETS
+                        .iter()
+                        .map(|(dx, dy)| Self::new(self.x + dx, self.y + dy))
+                }
+            }
+        )*
+    };
+}
+
+macro_rules! impl_bounded_neighbors_iter {
+    ($(($x:ty, $y:ty)),+ $(,)?) => {
+        $(
+            impl Point2D<$x> {
+                const CARD_NEIGHBOR_OFFSETS: [($y, $y); 4] = [
+                    (0, 1),
+                    (1, 0),
+                    (0, -1),
+                    (-1, 0),
+                ];
+
+                const NEIGHBOR_OFFSETS: [($y, $y); 8] = [
+                    (0, 1),
+                    (1, 1),
+                    (1, 0),
+                    (1, -1),
+                    (0, -1),
+                    (-1, -1),
+                    (-1, 0),
+                    (-1, 1),
+                ];
+
+                /// Returns an iterator over the valid cardinal neighbors of this point.
+                ///
+                /// Order is N -> E -> S -> W
+                pub fn cardinal_neighbors(&self) -> impl Iterator<Item = Self> + '_ {
+                    Self::CARD_NEIGHBOR_OFFSETS
+                        .iter()
+                        .filter_map(|(dx, dy)| {
+                            if self.x == 0 && *dx < 0 {
+                                return None;
+                            }
+
+                            if self.y == 0 && *dy < 0 {
+                                return None;
+                            }
+
+                            Some(
+                                Self::new(
+                                    (self.x as $y + dx) as $x,
+                                    (self.y as $y + dy) as $x,
+                                )
+                            )
+                        })
+                }
+
+                /// Returns an iterator over the valid cardinal and ordinal neighbors.
+                ///
+                /// Order is N -> NE -> E -> SE -> S -> SW -> W -> NW
+                pub fn neighbors(&self) -> impl Iterator<Item = Self> + '_ {
+                    Self::NEIGHBOR_OFFSETS
+                        .iter()
+                        .filter_map(|(dx, dy)| {
+                            if self.x == 0 && *dx < 0 {
+                                return None;
+                            }
+
+                            if self.y == 0 && *dy < 0 {
+                                return None;
+                            }
+
+                            Some(
+                                Self::new(
+                                    (self.x as $y + dx) as $x,
+                                    (self.y as $y + dy) as $x,
+                                )
+                            )
+                        })
+                }
+            }
+        )*
+    };
+}
+
+// we handle these specifically instead of trying to use some type constraint
+// magic to have generic impls for the ones we want. Part of the limitation
+// for the neighbors iterators is not being able to specify the `impl Iterator`
+// in the trait.
+impl_cardinal!(i8, i16, i32, i64, i128, isize);
+impl_neighbors_iter!(i8, i16, i32, i64, i128, isize);
+impl_bounded_cardinal!(u8, u16, u32, u64, u128, usize);
+impl_ordinal!(i8, i16, i32, i64, i128, isize);
+impl_bounded_ordinal!(u8, u16, u32, u64, u128, usize);
+impl_bounded_neighbors_iter! {
+    (u8, i16),
+    (u16, i16),
+    (u32, i32),
+    (u64, i64),
+    (u128, i128),
+    (usize, isize),
+}
+
 
 /// A point representing something like (x, y, z).
 ///
@@ -319,7 +519,28 @@ where
     }
 }
 
+const LOC_CARD_NEIGHBOR_OFFSETS: [(i64, i64); 4] = [
+    (-1, 0),
+    (0, 1),
+    (1, 0),
+    (0, -1),
+];
+
+const LOC_NEIGHBOR_OFFSETS: [(i64, i64); 8] = [
+    (-1, 0),
+    (-1, 1),
+    (0, 1),
+    (1, 1),
+    (1, 0),
+    (1, -1),
+    (0, -1),
+    (-1, -1),
+];
+
 /// Locations are special (row, colum) points mainly used as indexes into grids.
+///
+/// Locations also differ in that "north" is decreasing row values and "south"
+/// is increasing row values.
 #[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash)]
 pub struct Location {
     pub row: usize,
@@ -331,48 +552,46 @@ impl Location {
         Self { row, col }
     }
 
-    /// Attempt to get a location that would be North of this one.
+    /// Returns an iterator over the valid cardinal neighbors of this location.
     ///
-    /// We consider North to be a _lower_ row.
-    ///
-    /// This returns `None` if row is 0.
-    pub fn north(&self) -> Option<Self> {
-        if self.row == 0 {
-            None
-        } else {
-            Some((self.row - 1, self.col).into())
-        }
+    /// Order is N -> E -> S -> W
+    pub fn cardinal_neighbors(&self) -> impl Iterator<Item = Self> + '_ {
+        LOC_CARD_NEIGHBOR_OFFSETS
+            .iter()
+            .filter_map(|(dr, dc)| {
+                if *dr < 0 && self.row == 0 {
+                    return None;
+                }
+
+                if *dc < 0 && self.col == 0 {
+                    return None;
+                }
+
+                Some(
+                    ((self.row as i64 + *dr) as usize, (self.col as i64 + *dc) as usize).into()
+                )
+            })
     }
 
-    /// Attempt to get a location that would be South of this one.
+    /// Returns an iterator over the valid cardinal and ordinal neighbors.
     ///
-    /// We consider South to be a _higher_ row.
-    ///
-    /// This _always_ returns a value.
-    pub fn south(&self) -> Option<Self> {
-        Some((self.row + 1, self.col).into())
-    }
+    /// Order is N -> NE -> E -> SE -> S -> SW -> W -> NW
+    pub fn neighbors(&self) -> impl Iterator<Item = Self> + '_ {
+        LOC_NEIGHBOR_OFFSETS
+            .iter()
+            .filter_map(|(dr, dc)| {
+                if *dr < 0 && self.row == 0 {
+                    return None;
+                }
 
-    /// Attempt to get a location that would be East of this one.
-    ///
-    /// We consider East to be a _higher_ col.
-    ///
-    /// This _always_ returns a value.
-    pub fn east(&self) -> Option<Self> {
-        Some((self.row, self.col + 1).into())
-    }
+                if *dc < 0 && self.col == 0 {
+                    return None;
+                }
 
-    /// Attempt to get a location that would be West of this one.
-    ///
-    /// We consider West to be a _lower_ col.
-    ///
-    /// This returns `None` if col is 0
-    pub fn west(&self) -> Option<Self> {
-        if self.col == 0 {
-            None
-        } else {
-            Some((self.row, self.col - 1).into())
-        }
+                Some(
+                    ((self.row as i64 + *dr) as usize, (self.col as i64 + *dc) as usize).into()
+                )
+            })
     }
 }
 
@@ -390,11 +609,284 @@ impl AocPoint for Location {
     }
 }
 
+impl BoundedCardinalNeighbors for Location {
+    fn north(&self) -> Option<Self> {
+        if self.row == 0 {
+            None
+        } else {
+            Some((self.row - 1, self.col).into())
+        }
+    }
+
+    fn south(&self) -> Option<Self> {
+        Some((self.row + 1, self.col).into())
+    }
+
+    fn east(&self) -> Option<Self> {
+        Some((self.row, self.col + 1).into())
+    }
+
+    fn west(&self) -> Option<Self> {
+        if self.col == 0 {
+            None
+        } else {
+            Some((self.row, self.col - 1).into())
+        }
+    }
+}
+
+impl BoundedOrdinalNeighbors for Location {
+    fn north_east(&self) -> Option<Self> {
+        if self.row == 0 {
+            None
+        } else {
+            Some((self.row - 1, self.col + 1).into())
+        }
+    }
+
+    fn north_west(&self) -> Option<Self> {
+        if self.row == 0 || self.col == 0 {
+            None
+        } else {
+            Some((self.row - 1, self.col - 1).into())
+        }
+    }
+
+    fn south_east(&self) -> Option<Self> {
+        Some((self.row + 1, self.col + 1).into())
+    }
+
+    fn south_west(&self) -> Option<Self> {
+        if self.col == 0 {
+            None
+        } else {
+            Some((self.row + 1, self.col - 1).into())
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     #[allow(non_snake_case)]
     mod Point2D {
         use super::super::*;
+
+        // make it esay to test all of our intentionally supported types
+        macro_rules! test_neighbors {
+            ($(($n:ident, $x:ty)),+ $(,)?) => {
+                $(
+                    mod $n {
+                        use super::super::super::*;
+
+                        #[test]
+                        fn north() {
+                            let p: Point2D<$x> = Point2D::default();
+                            assert_eq!(p.north(), Point2D::new(0, 1));
+                        }
+
+                        #[test]
+                        fn south() {
+                            let p: Point2D<$x> = Point2D::default();
+                            assert_eq!(p.south(), Point2D::new(0, -1));
+                        }
+
+                        #[test]
+                        fn east() {
+                            let p: Point2D<$x> = Point2D::default();
+                            assert_eq!(p.east(), Point2D::new(1, 0));
+                        }
+
+                        #[test]
+                        fn west() {
+                            let p: Point2D<$x> = Point2D::default();
+                            assert_eq!(p.west(), Point2D::new(-1, 0));
+                        }
+
+                        #[test]
+                        fn north_east() {
+                            let p: Point2D<$x> = Point2D::default();
+                            assert_eq!(p.north_east(), Point2D::new(1, 1));
+                        }
+
+                        #[test]
+                        fn north_west() {
+                            let p: Point2D<$x> = Point2D::default();
+                            assert_eq!(p.north_west(), Point2D::new(-1, 1));
+                        }
+
+                        #[test]
+                        fn south_east() {
+                            let p: Point2D<$x> = Point2D::default();
+                            assert_eq!(p.south_east(), Point2D::new(1, -1));
+                        }
+
+                        #[test]
+                        fn south_west() {
+                            let p: Point2D<$x> = Point2D::default();
+                            assert_eq!(p.south_west(), Point2D::new(-1, -1));
+                        }
+
+                        #[test]
+                        fn cardinal_neighbors() {
+                            let p: Point2D<$x> = Point2D::default();
+                            let expected = vec![
+                                p.north(),
+                                p.east(),
+                                p.south(),
+                                p.west(),
+                            ];
+
+                            let n = p.cardinal_neighbors().collect::<Vec<_>>();
+                            assert_eq!(n, expected);
+                        }
+
+                        #[test]
+                        fn neighbors() {
+                            let p: Point2D<$x> = Point2D::default();
+                            let expected = vec![
+                                p.north(),
+                                p.north_east(),
+                                p.east(),
+                                p.south_east(),
+                                p.south(),
+                                p.south_west(),
+                                p.west(),
+                                p.north_west(),
+                            ];
+
+                            let n = p.neighbors().collect::<Vec<_>>();
+                            assert_eq!(n, expected);
+                        }
+                    }
+                )*
+            };
+        }
+
+        // make it esay to test all of our intentionally supported types
+        macro_rules! test_bounded_neighbors {
+            ($(($n:ident, $x:ty)),+ $(,)?) => {
+                $(
+                    mod $n {
+                        use super::super::super::*;
+
+                        #[test]
+                        fn north() {
+                            let p: Point2D<$x> = Point2D::default();
+                            assert_eq!(p.north(), Some(Point2D::new(0, 1)));
+                        }
+
+                        #[test]
+                        fn south() {
+                            let p: Point2D<$x> = Point2D::default();
+                            assert_eq!(p.south(), None);
+
+
+                            let p: Point2D<$x> = (2, 2).into();
+                            assert_eq!(p.south(), Some((2, 1).into()));
+                        }
+
+                        #[test]
+                        fn east() {
+                            let p: Point2D<$x> = Point2D::default();
+                            assert_eq!(p.east(), Some(Point2D::new(1, 0)));
+                        }
+
+                        #[test]
+                        fn west() {
+                            let p: Point2D<$x> = Point2D::default();
+                            assert_eq!(p.west(), None);
+
+                            let p: Point2D<$x> = (2, 2).into();
+                            assert_eq!(p.west(), Some((1, 2).into()));
+                        }
+
+                        #[test]
+                        fn north_east() {
+                            let p: Point2D<$x> = Point2D::default();
+                            assert_eq!(p.north_east(), Some(Point2D::new(1, 1)));
+                        }
+
+                        #[test]
+                        fn north_west() {
+                            let p: Point2D<$x> = Point2D::default();
+                            assert_eq!(p.north_west(), None);
+
+                            let p: Point2D<$x> = (2, 2).into();
+                            assert_eq!(p.north_west(), Some((1, 3).into()));
+                        }
+
+                        #[test]
+                        fn south_east() {
+                            let p: Point2D<$x> = Point2D::default();
+                            assert_eq!(p.south_east(), None);
+
+                            let p: Point2D<$x> = (2, 2).into();
+                            assert_eq!(p.south_east(), Some((3, 1).into()));
+                        }
+
+                        #[test]
+                        fn south_west() {
+                            let p: Point2D<$x> = Point2D::default();
+                            assert_eq!(p.south_west(), None);
+
+                            let p: Point2D<$x> = (2, 2).into();
+                            assert_eq!(p.south_west(), Some((1, 1).into()));
+                        }
+
+                        #[test]
+                        fn cardinal_neighbors() {
+                            let p: Point2D<$x> = Point2D::new(0, 0);
+                            let expected = vec![
+                                p.north().unwrap(),
+                                p.east().unwrap(),
+                            ];
+
+                            let n = p.cardinal_neighbors().collect::<Vec<_>>();
+                            assert_eq!(n, expected);
+
+                            let p: Point2D<$x> = Point2D::new(1, 1);
+                            let expected = vec![
+                                p.north().unwrap(),
+                                p.east().unwrap(),
+                                p.south().unwrap(),
+                                p.west().unwrap(),
+                            ];
+
+                            let n = p.cardinal_neighbors().collect::<Vec<_>>();
+                            assert_eq!(n, expected);
+                        }
+
+                        #[test]
+                        fn neighbors() {
+                            let p: Point2D<$x> = Point2D::new(0, 0);
+                            let expected = vec![
+                                p.north().unwrap(),
+                                p.north_east().unwrap(),
+                                p.east().unwrap(),
+                            ];
+
+                            let n = p.neighbors().collect::<Vec<_>>();
+                            assert_eq!(n, expected);
+
+                            let p: Point2D<$x> = Point2D::new(1, 1);
+                            let expected = vec![
+                                p.north().unwrap(),
+                                p.north_east().unwrap(),
+                                p.east().unwrap(),
+                                p.south_east().unwrap(),
+                                p.south().unwrap(),
+                                p.south_west().unwrap(),
+                                p.west().unwrap(),
+                                p.north_west().unwrap(),
+                            ];
+
+                            let n = p.neighbors().collect::<Vec<_>>();
+                            assert_eq!(n, expected);
+                        }
+                    }
+                )*
+            };
+        }
 
         #[test]
         fn construction() {
@@ -411,68 +903,22 @@ mod tests {
             assert_eq!(p2.manhattan_dist(&p1), 7);
         }
 
-        #[test]
-        fn north() {
-            let p: Point2D<i32> = Point2D::default();
-            let expected = Point2D::new(0, 1);
-
-            assert_eq!(p.north(), expected);
+        test_neighbors! {
+            (i8, i8),
+            (i16, i16),
+            (i32, i32),
+            (i64, i64),
+            (i128, i128),
+            (isize, isize),
         }
 
-        #[test]
-        fn north_east() {
-            let p: Point2D<i32> = Point2D::default();
-            let expected = Point2D::new(1, 1);
-
-            assert_eq!(p.north_east(), expected);
-        }
-
-        #[test]
-        fn north_west() {
-            let p: Point2D<i32> = Point2D::default();
-            let expected = Point2D::new(-1, 1);
-
-            assert_eq!(p.north_west(), expected);
-        }
-
-        #[test]
-        fn south() {
-            let p: Point2D<i32> = Point2D::default();
-            let expected = Point2D::new(0, -1);
-
-            assert_eq!(p.south(), expected);
-        }
-
-        #[test]
-        fn south_east() {
-            let p: Point2D<i32> = Point2D::default();
-            let expected = Point2D::new(1, -1);
-
-            assert_eq!(p.south_east(), expected);
-        }
-
-        #[test]
-        fn south_west() {
-            let p: Point2D<i32> = Point2D::default();
-            let expected = Point2D::new(-1, -1);
-
-            assert_eq!(p.south_west(), expected);
-        }
-
-        #[test]
-        fn east() {
-            let p: Point2D<i32> = Point2D::default();
-            let expected = Point2D::new(1, 0);
-
-            assert_eq!(p.east(), expected);
-        }
-
-        #[test]
-        fn west() {
-            let p: Point2D<i32> = Point2D::default();
-            let expected = Point2D::new(-1, 0);
-
-            assert_eq!(p.west(), expected);
+        test_bounded_neighbors! {
+            (u8, u8),
+            (u16, u16),
+            (u32, u32),
+            (u64, u64),
+            (u128, u128),
+            (usize, usize),
         }
     }
 
@@ -533,35 +979,96 @@ mod tests {
         #[test]
         fn north() {
             let p = Location::default();
-            assert_eq!(p.north(), Option::None);
+            assert_eq!(p.north(), None);
 
-            let p = Location::new(12, 6);
-            let expected = Location::new(11, 6);
-            assert_eq!(p.north(), Some(expected));
+            let p = Location::new(2, 2);
+            assert_eq!(p.north(), Some((1, 2).into()));
         }
 
         #[test]
         fn south() {
-            let p = Location::new(12, 6);
-            let expected = Location::new(13, 6);
-            assert_eq!(p.south(), Some(expected));
+            let p = Location::default();
+            assert_eq!(p.south(), Some((1, 0).into()));
         }
 
         #[test]
         fn east() {
-            let p = Location::new(12, 6);
-            let expected = Location::new(12, 7);
-            assert_eq!(p.east(), Some(expected));
+            let p = Location::default();
+            assert_eq!(p.east(), Some(Location::new(0, 1)));
         }
 
         #[test]
         fn west() {
             let p = Location::default();
-            assert_eq!(p.west(), Option::None);
+            assert_eq!(p.west(), None);
 
-            let p = Location::new(12, 6);
-            let expected = Location::new(12, 5);
-            assert_eq!(p.west(), Some(expected));
+            let p = Location::new(2, 2);
+            assert_eq!(p.west(), Some((2, 1).into()));
+        }
+
+        #[test]
+        fn north_east() {
+            let p = Location::default();
+            assert_eq!(p.north_east(), None);
+
+            let p = Location::new(2, 2);
+            assert_eq!(p.north_east(), Some(Location::new(1, 3)));
+        }
+
+        #[test]
+        fn north_west() {
+            let p = Location::default();
+            assert_eq!(p.north_west(), None);
+
+            let p = Location::new(2, 2);
+            assert_eq!(p.north_west(), Some((1, 1).into()));
+        }
+
+        #[test]
+        fn south_east() {
+            let p = Location::default();
+            assert_eq!(p.south_east(), Some((1, 1).into()));
+        }
+
+        #[test]
+        fn south_west() {
+            let p = Location::default();
+            assert_eq!(p.south_west(), None);
+
+            let p = Location::new(2, 2);
+            assert_eq!(p.south_west(), Some((3, 1).into()));
+        }
+
+        #[test]
+        fn cardinal_neighbors() {
+            let p = Location::new(2, 2);
+            let expected = vec![
+                p.north().unwrap() ,
+                p.east().unwrap(),
+                p.south().unwrap(),
+                p.west().unwrap(),
+            ];
+
+            let n = p.cardinal_neighbors().collect::<Vec<_>>();
+            assert_eq!(n, expected);
+        }
+
+        #[test]
+        fn neighbors() {
+            let p = Location::new(2, 2);
+            let expected = vec![
+                p.north().unwrap() ,
+                p.north_east().unwrap() ,
+                p.east().unwrap(),
+                p.south_east().unwrap(),
+                p.south().unwrap(),
+                p.south_west().unwrap(),
+                p.west().unwrap(),
+                p.north_west().unwrap(),
+            ];
+
+            let n = p.neighbors().collect::<Vec<_>>();
+            assert_eq!(n, expected);
         }
     }
 }

@@ -439,6 +439,66 @@ impl TryFrom<char> for Relative {
     }
 }
 
+/// Indicates that this type has cardinal neighbors
+pub trait CardinalNeighbors {
+    /// Get a thing north of us.
+    fn north(&self) -> Self;
+
+    /// Get a thing south of us.
+    fn south(&self) -> Self;
+
+    /// Get a thing east of us.
+    fn east(&self) -> Self;
+
+    /// Get a thing west of us.
+    fn west(&self) -> Self;
+}
+
+/// Indicates that this type has ordinal neighbors
+pub trait OrdinalNeighbors {
+    /// Get a thing north east of us.
+    fn north_east(&self) -> Self;
+
+    /// Get a thing north west of us.
+    fn north_west(&self) -> Self;
+
+    /// Get a thing south east of us.
+    fn south_east(&self) -> Self;
+
+    /// Get a thing south west of us.
+    fn south_west(&self) -> Self;
+}
+
+/// Indicates that this type has cardinal neighbors but some do not exist
+pub trait BoundedCardinalNeighbors: Sized {
+    /// Get a thing north of us.
+    fn north(&self) -> Option<Self>;
+
+    /// Get a thing south of us.
+    fn south(&self) -> Option<Self>;
+
+    /// Get a thing east of us.
+    fn east(&self) -> Option<Self>;
+
+    /// Get a thing west of us.
+    fn west(&self) -> Option<Self>;
+}
+
+/// Indicates that this type has ordinal neighbors, but some do not exist
+pub trait BoundedOrdinalNeighbors: Sized {
+    /// Get a thing north east of us.
+    fn north_east(&self) -> Option<Self>;
+
+    /// Get a thing north west of us.
+    fn north_west(&self) -> Option<Self>;
+
+    /// Get a thing south east of us.
+    fn south_east(&self) -> Option<Self>;
+
+    /// Get a thing south west of us.
+    fn south_west(&self) -> Option<Self>;
+}
+
 #[cfg(test)]
 mod tests {
     mod cardinal {
