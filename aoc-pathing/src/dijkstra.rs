@@ -75,7 +75,7 @@ pub fn dijkstra<N, C, E, I, S>(start: &N, edges: &mut E, stop: &mut S) -> Dijkst
 where
     N: Clone + Eq + Hash,
     C: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
-    E: FnMut(&N) -> I,
+    E: Fn(&N) -> I,
     I: IntoIterator<Item = (N, C)>,
     S: FnMut(&N) -> bool,
 {
