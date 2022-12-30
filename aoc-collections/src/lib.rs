@@ -10,3 +10,8 @@ pub type FxIndexMap<K, V> = IndexMap<K, V, BuildHasherDefault<FxHasher>>;
 
 /// An IndexSet with FxHasher
 pub type FxIndexSet<K> = IndexSet<K, BuildHasherDefault<FxHasher>>;
+
+// Our stuff
+pub mod grid;
+
+pub use grid::Grid;
