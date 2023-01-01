@@ -30,6 +30,19 @@ where
     }
 }
 
+fn path<N, C>(cur: usize, map: &FxIndexMap<N, (usize, C)>) -> Vec<&N> {
+    let mut v = Vec::new();
+    let mut cur = cur;
+
+    while let Some((node, (next_index, _))) = map.get_index(cur) {
+        v.push(node);
+        cur = *next_index;
+    }
+
+    v.reverse();
+    v
+}
+
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum DijkstraResult<N, C>
 where
@@ -65,7 +78,18 @@ where
                 examined_nodes,
                 ..
             } => Ok(path_len(*goal_index, examined_nodes) - 1), // we need to take 1 off because of
-                                                                // the root node
+            // the root node
+            _ => Err(DijkstraError::NoPath),
+        }
+    }
+
+    pub fn path(&self) -> Result<Vec<&N>, DijkstraError> {
+        match self {
+            Self::Success {
+                goal_index,
+                examined_nodes,
+                ..
+            } => Ok(path(*goal_index, examined_nodes)),
             _ => Err(DijkstraError::NoPath),
         }
     }

@@ -34,21 +34,27 @@ impl<T> Grid<T> {
     ///
     /// Returns [None] if the location does not exist in the grid.
     pub fn get(&self, location: &Location) -> Option<&T> {
-        self.locations.get(location.row).and_then(|r| r.get(location.col))
+        self.locations
+            .get(location.row)
+            .and_then(|r| r.get(location.col))
     }
 
     /// Attempt to get a mutable reference to the value for the given location.
     ///
     /// Returns [None] if the location does not exist in the grid.
     pub fn get_mut(&mut self, location: &Location) -> Option<&mut T> {
-        self.locations.get_mut(location.row).and_then(|r| r.get_mut(location.col))
+        self.locations
+            .get_mut(location.row)
+            .and_then(|r| r.get_mut(location.col))
     }
 
     /// Attempt to set the value in the grid corresponding to the given location.
     ///
     /// This will error if the location does not exist in the grid.
     pub fn set(&mut self, location: &Location, value: T) -> Result<(), GridError> {
-        let e = self.get_mut(location).ok_or_else(|| GridError::OutOfBounds(*location))?;
+        let e = self
+            .get_mut(location)
+            .ok_or_else(|| GridError::OutOfBounds(*location))?;
         *e = value;
         Ok(())
     }
@@ -69,7 +75,9 @@ impl<T> Grid<T> {
     ///
     /// For convenience, this yields tuples of ([Location], `&T`)
     pub fn neighbors(&self, location: &Location) -> impl Iterator<Item = (Location, &T)> {
-        location.neighbors().filter_map(|n| self.get(&n).map(|v| (n, v)))
+        location
+            .neighbors()
+            .filter_map(|n| self.get(&n).map(|v| (n, v)))
     }
 
     /// Get an iterator over the valid grid cardinal neighbors of the given location.
@@ -78,7 +86,9 @@ impl<T> Grid<T> {
     ///
     /// For convenience, this yields tuples of ([Location], `&T`)
     pub fn cardinal_neighbors(&self, location: &Location) -> impl Iterator<Item = (Location, &T)> {
-        location.cardinal_neighbors().filter_map(|n| self.get(&n).map(|v| (n, v)))
+        location
+            .cardinal_neighbors()
+            .filter_map(|n| self.get(&n).map(|v| (n, v)))
     }
 }
 

@@ -6,12 +6,16 @@
 //! expose specific attributes like x, y, z. Higher dimensional points are
 //! available, but are generic via array wrappers.
 use std::{
+    cmp::Ordering,
     hash::Hash,
     iter::Sum,
     ops::{Add, Deref},
 };
 
-use aoc_directions::{CardinalNeighbors, OrdinalNeighbors, BoundedOrdinalNeighbors, BoundedCardinalNeighbors};
+use aoc_directions::{
+    BoundedCardinalNeighbors, BoundedOrdinalNeighbors, CardinalNeighbors, Direction,
+    OrdinalNeighbors,
+};
 use num::{Bounded, Num};
 
 /// A colleciton of basic things that all "points" provide.
@@ -55,6 +59,23 @@ where
     /// ```
     pub fn new(x: T, y: T) -> Self {
         Self { x, y }
+    }
+
+    /// Calculate the relative direction that `self` is from `other`.
+    ///
+    /// Returns [None] if `self == other`.
+    pub fn relative_direction_from(&self, other: &Self) -> Option<Direction> {
+        match (self.x.cmp(&other.x), self.y.cmp(&other.y)) {
+            (Ordering::Less, Ordering::Less) => Some(Direction::SouthWest),
+            (Ordering::Less, Ordering::Equal) => Some(Direction::West),
+            (Ordering::Less, Ordering::Greater) => Some(Direction::NorthWest),
+            (Ordering::Equal, Ordering::Less) => Some(Direction::South),
+            (Ordering::Equal, Ordering::Equal) => None,
+            (Ordering::Equal, Ordering::Greater) => Some(Direction::North),
+            (Ordering::Greater, Ordering::Less) => Some(Direction::SouthEast),
+            (Ordering::Greater, Ordering::Equal) => Some(Direction::East),
+            (Ordering::Greater, Ordering::Greater) => Some(Direction::NorthEast),
+        }
     }
 }
 
@@ -356,7 +377,6 @@ impl_bounded_neighbors_iter! {
     (usize, isize),
 }
 
-
 /// A point representing something like (x, y, z).
 ///
 /// # Examples
@@ -525,12 +545,7 @@ where
     }
 }
 
-const LOC_CARD_NEIGHBOR_OFFSETS: [(i64, i64); 4] = [
-    (-1, 0),
-    (0, 1),
-    (1, 0),
-    (0, -1),
-];
+const LOC_CARD_NEIGHBOR_OFFSETS: [(i64, i64); 4] = [(-1, 0), (0, 1), (1, 0), (0, -1)];
 
 const LOC_NEIGHBOR_OFFSETS: [(i64, i64); 8] = [
     (-1, 0),
@@ -576,9 +591,7 @@ impl Location {
                     return None;
                 }
 
-                Some(
-                    ((row as i64 + *dr) as usize, (col as i64 + *dc) as usize).into()
-                )
+                Some(((row as i64 + *dr) as usize, (col as i64 + *dc) as usize).into())
             })
     }
 
@@ -589,21 +602,34 @@ impl Location {
         let row = self.row;
         let col = self.col;
 
-        LOC_NEIGHBOR_OFFSETS
-            .iter()
-            .filter_map(move |(dr, dc)| {
-                if *dr < 0 && row == 0 {
-                    return None;
-                }
+        LOC_NEIGHBOR_OFFSETS.iter().filter_map(move |(dr, dc)| {
+            if *dr < 0 && row == 0 {
+                return None;
+            }
 
-                if *dc < 0 && col == 0 {
-                    return None;
-                }
+            if *dc < 0 && col == 0 {
+                return None;
+            }
 
-                Some(
-                    ((row as i64 + *dr) as usize, (col as i64 + *dc) as usize).into()
-                )
-            })
+            Some(((row as i64 + *dr) as usize, (col as i64 + *dc) as usize).into())
+        })
+    }
+
+    /// Calculate the relative direction that `self` is from `other`.
+    ///
+    /// Returns [None] if `self == other`.
+    pub fn relative_direction_from(&self, other: &Self) -> Option<Direction> {
+        match (self.col.cmp(&other.col), self.row.cmp(&other.row)) {
+            (Ordering::Less, Ordering::Less) => Some(Direction::NorthWest),
+            (Ordering::Less, Ordering::Equal) => Some(Direction::West),
+            (Ordering::Less, Ordering::Greater) => Some(Direction::SouthWest),
+            (Ordering::Equal, Ordering::Less) => Some(Direction::North),
+            (Ordering::Equal, Ordering::Equal) => None,
+            (Ordering::Equal, Ordering::Greater) => Some(Direction::South),
+            (Ordering::Greater, Ordering::Less) => Some(Direction::NorthEast),
+            (Ordering::Greater, Ordering::Equal) => Some(Direction::East),
+            (Ordering::Greater, Ordering::Greater) => Some(Direction::SouthEast),
+        }
     }
 }
 
@@ -1055,7 +1081,7 @@ mod tests {
         fn cardinal_neighbors() {
             let p = Location::new(2, 2);
             let expected = vec![
-                p.north().unwrap() ,
+                p.north().unwrap(),
                 p.east().unwrap(),
                 p.south().unwrap(),
                 p.west().unwrap(),
@@ -1069,8 +1095,8 @@ mod tests {
         fn neighbors() {
             let p = Location::new(2, 2);
             let expected = vec![
-                p.north().unwrap() ,
-                p.north_east().unwrap() ,
+                p.north().unwrap(),
+                p.north_east().unwrap(),
                 p.east().unwrap(),
                 p.south_east().unwrap(),
                 p.south().unwrap(),
@@ -1081,6 +1107,44 @@ mod tests {
 
             let n = p.neighbors().collect::<Vec<_>>();
             assert_eq!(n, expected);
+        }
+
+        #[test]
+        fn relative_direction_from() {
+            let p = Location::new(1, 1);
+            assert_eq!(p.relative_direction_from(&p), None);
+            assert_eq!(
+                p.relative_direction_from(&Location::new(0, 0)),
+                Some(Direction::SouthEast)
+            );
+            assert_eq!(
+                p.relative_direction_from(&Location::new(0, 1)),
+                Some(Direction::South)
+            );
+            assert_eq!(
+                p.relative_direction_from(&Location::new(0, 2)),
+                Some(Direction::SouthWest)
+            );
+            assert_eq!(
+                p.relative_direction_from(&Location::new(1, 0)),
+                Some(Direction::East)
+            );
+            assert_eq!(
+                p.relative_direction_from(&Location::new(1, 2)),
+                Some(Direction::West)
+            );
+            assert_eq!(
+                p.relative_direction_from(&Location::new(2, 0)),
+                Some(Direction::NorthEast)
+            );
+            assert_eq!(
+                p.relative_direction_from(&Location::new(2, 1)),
+                Some(Direction::North)
+            );
+            assert_eq!(
+                p.relative_direction_from(&Location::new(2, 2)),
+                Some(Direction::NorthWest)
+            );
         }
     }
 }
