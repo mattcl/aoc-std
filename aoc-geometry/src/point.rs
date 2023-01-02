@@ -13,7 +13,7 @@ use std::{
 };
 
 use aoc_directions::{
-    BoundedCardinalNeighbors, BoundedOrdinalNeighbors, CardinalNeighbors, Direction,
+    BoundedCardinalNeighbors, BoundedOrdinalNeighbors, Cardinal, CardinalNeighbors, Direction,
     OrdinalNeighbors,
 };
 use num::{Bounded, Num};
@@ -239,40 +239,44 @@ macro_rules! impl_neighbors_iter {
     ($($x:ty),+ $(,)?) => {
         $(
             impl Point2D<$x> {
-                const CARD_NEIGHBOR_OFFSETS: [($x, $x); 4] = [
-                    (0, 1),
-                    (1, 0),
-                    (0, -1),
-                    (-1, 0),
+                const CARD_NEIGHBOR_OFFSETS: [(Cardinal, $x, $x); 4] = [
+                    (Cardinal::North, 0, 1),
+                    (Cardinal::East, 1, 0),
+                    (Cardinal::South, 0, -1),
+                    (Cardinal::West, -1, 0),
                 ];
 
-                const NEIGHBOR_OFFSETS: [($x, $x); 8] = [
-                    (0, 1),
-                    (1, 1),
-                    (1, 0),
-                    (1, -1),
-                    (0, -1),
-                    (-1, -1),
-                    (-1, 0),
-                    (-1, 1),
+                const NEIGHBOR_OFFSETS: [(Direction, $x, $x); 8] = [
+                    (Direction::North, 0, 1),
+                    (Direction::NorthEast, 1, 1),
+                    (Direction::East, 1, 0),
+                    (Direction::SouthEast, 1, -1),
+                    (Direction::South, 0, -1),
+                    (Direction::SouthWest, -1, -1),
+                    (Direction::West, -1, 0),
+                    (Direction::NorthWest, -1, 1),
                 ];
 
                 /// Returns an iterator over the valid cardinal neighbors of this point.
                 ///
                 /// Order is N -> E -> S -> W
-                pub fn cardinal_neighbors(&self) -> impl Iterator<Item = Self> + '_ {
+                pub fn cardinal_neighbors(&self) -> impl Iterator<Item = (Cardinal, Self)> {
+                    let x = self.x;
+                    let y = self.y;
                     Self::CARD_NEIGHBOR_OFFSETS
                         .iter()
-                        .map(|(dx, dy)| Self::new(self.x + dx, self.y + dy))
+                        .map(move |(dir, dx, dy)| (*dir, Self::new(x + dx, y + dy)))
                 }
 
                 /// Returns an iterator over the valid cardinal and ordinal neighbors.
                 ///
                 /// Order is N -> NE -> E -> SE -> S -> SW -> W -> NW
-                pub fn neighbors(&self) -> impl Iterator<Item = Self> + '_ {
+                pub fn neighbors(&self) -> impl Iterator<Item = (Direction, Self)> {
+                    let x = self.x;
+                    let y = self.y;
                     Self::NEIGHBOR_OFFSETS
                         .iter()
-                        .map(|(dx, dy)| Self::new(self.x + dx, self.y + dy))
+                        .map(move |(dir, dx, dy)| (*dir, Self::new(x + dx, y + dy)))
                 }
             }
         )*
@@ -283,34 +287,34 @@ macro_rules! impl_bounded_neighbors_iter {
     ($(($x:ty, $y:ty)),+ $(,)?) => {
         $(
             impl Point2D<$x> {
-                const CARD_NEIGHBOR_OFFSETS: [($y, $y); 4] = [
-                    (0, 1),
-                    (1, 0),
-                    (0, -1),
-                    (-1, 0),
+                const CARD_NEIGHBOR_OFFSETS: [(Cardinal, $y, $y); 4] = [
+                    (Cardinal::North, 0, 1),
+                    (Cardinal::East, 1, 0),
+                    (Cardinal::South, 0, -1),
+                    (Cardinal::West, -1, 0),
                 ];
 
-                const NEIGHBOR_OFFSETS: [($y, $y); 8] = [
-                    (0, 1),
-                    (1, 1),
-                    (1, 0),
-                    (1, -1),
-                    (0, -1),
-                    (-1, -1),
-                    (-1, 0),
-                    (-1, 1),
+                const NEIGHBOR_OFFSETS: [(Direction, $y, $y); 8] = [
+                    (Direction::North, 0, 1),
+                    (Direction::NorthEast, 1, 1),
+                    (Direction::East, 1, 0),
+                    (Direction::SouthEast, 1, -1),
+                    (Direction::South, 0, -1),
+                    (Direction::SouthWest, -1, -1),
+                    (Direction::West, -1, 0),
+                    (Direction::NorthWest, -1, 1),
                 ];
 
                 /// Returns an iterator over the valid cardinal neighbors of this point.
                 ///
                 /// Order is N -> E -> S -> W
-                pub fn cardinal_neighbors(&self) -> impl Iterator<Item = Self> {
+                pub fn cardinal_neighbors(&self) -> impl Iterator<Item = (Cardinal, Self)> {
                     let x = self.x;
                     let y = self.y;
 
                     Self::CARD_NEIGHBOR_OFFSETS
                         .iter()
-                        .filter_map(move |(dx, dy)| {
+                        .filter_map(move |(dir, dx, dy)| {
                             if x == 0 && *dx < 0 {
                                 return None;
                             }
@@ -319,25 +323,26 @@ macro_rules! impl_bounded_neighbors_iter {
                                 return None;
                             }
 
-                            Some(
+                            Some((
+                                *dir,
                                 Self::new(
                                     (x as $y + dx) as $x,
                                     (y as $y + dy) as $x,
                                 )
-                            )
+                            ))
                         })
                 }
 
                 /// Returns an iterator over the valid cardinal and ordinal neighbors.
                 ///
                 /// Order is N -> NE -> E -> SE -> S -> SW -> W -> NW
-                pub fn neighbors(&self) -> impl Iterator<Item = Self> {
+                pub fn neighbors(&self) -> impl Iterator<Item = (Direction, Self)> {
                     let x = self.x;
                     let y = self.y;
 
                     Self::NEIGHBOR_OFFSETS
                         .iter()
-                        .filter_map(move |(dx, dy)| {
+                        .filter_map(move |(dir, dx, dy)| {
                             if x == 0 && *dx < 0 {
                                 return None;
                             }
@@ -346,12 +351,13 @@ macro_rules! impl_bounded_neighbors_iter {
                                 return None;
                             }
 
-                            Some(
+                            Some((
+                                *dir,
                                 Self::new(
                                     (x as $y + dx) as $x,
                                     (y as $y + dy) as $x,
                                 )
-                            )
+                            ))
                         })
                 }
             }
@@ -545,17 +551,22 @@ where
     }
 }
 
-const LOC_CARD_NEIGHBOR_OFFSETS: [(i64, i64); 4] = [(-1, 0), (0, 1), (1, 0), (0, -1)];
+const LOC_CARD_NEIGHBOR_OFFSETS: [(Cardinal, i64, i64); 4] = [
+    (Cardinal::North, -1, 0),
+    (Cardinal::East, 0, 1),
+    (Cardinal::South, 1, 0),
+    (Cardinal::West, 0, -1),
+];
 
-const LOC_NEIGHBOR_OFFSETS: [(i64, i64); 8] = [
-    (-1, 0),
-    (-1, 1),
-    (0, 1),
-    (1, 1),
-    (1, 0),
-    (1, -1),
-    (0, -1),
-    (-1, -1),
+const LOC_NEIGHBOR_OFFSETS: [(Direction, i64, i64); 8] = [
+    (Direction::North, -1, 0),
+    (Direction::NorthEast, -1, 1),
+    (Direction::East, 0, 1),
+    (Direction::SouthEast, 1, 1),
+    (Direction::South, 1, 0),
+    (Direction::SouthWest, 1, -1),
+    (Direction::West, 0, -1),
+    (Direction::NorthWest, -1, -1),
 ];
 
 /// Locations are special (row, colum) points mainly used as indexes into grids.
@@ -576,13 +587,13 @@ impl Location {
     /// Returns an iterator over the valid cardinal neighbors of this location.
     ///
     /// Order is N -> E -> S -> W
-    pub fn cardinal_neighbors(&self) -> impl Iterator<Item = Self> {
+    pub fn cardinal_neighbors(&self) -> impl Iterator<Item = (Cardinal, Self)> {
         let row = self.row;
         let col = self.col;
 
         LOC_CARD_NEIGHBOR_OFFSETS
             .iter()
-            .filter_map(move |(dr, dc)| {
+            .filter_map(move |(dir, dr, dc)| {
                 if *dr < 0 && row == 0 {
                     return None;
                 }
@@ -591,28 +602,36 @@ impl Location {
                     return None;
                 }
 
-                Some(((row as i64 + *dr) as usize, (col as i64 + *dc) as usize).into())
+                Some((
+                    *dir,
+                    ((row as i64 + *dr) as usize, (col as i64 + *dc) as usize).into(),
+                ))
             })
     }
 
     /// Returns an iterator over the valid cardinal and ordinal neighbors.
     ///
     /// Order is N -> NE -> E -> SE -> S -> SW -> W -> NW
-    pub fn neighbors(&self) -> impl Iterator<Item = Self> {
+    pub fn neighbors(&self) -> impl Iterator<Item = (Direction, Self)> {
         let row = self.row;
         let col = self.col;
 
-        LOC_NEIGHBOR_OFFSETS.iter().filter_map(move |(dr, dc)| {
-            if *dr < 0 && row == 0 {
-                return None;
-            }
+        LOC_NEIGHBOR_OFFSETS
+            .iter()
+            .filter_map(move |(dir, dr, dc)| {
+                if *dr < 0 && row == 0 {
+                    return None;
+                }
 
-            if *dc < 0 && col == 0 {
-                return None;
-            }
+                if *dc < 0 && col == 0 {
+                    return None;
+                }
 
-            Some(((row as i64 + *dr) as usize, (col as i64 + *dc) as usize).into())
-        })
+                Some((
+                    *dir,
+                    ((row as i64 + *dr) as usize, (col as i64 + *dc) as usize).into(),
+                ))
+            })
     }
 
     /// Calculate the relative direction that `self` is from `other`.
@@ -768,10 +787,10 @@ mod tests {
                         fn cardinal_neighbors() {
                             let p: Point2D<$x> = Point2D::default();
                             let expected = vec![
-                                p.north(),
-                                p.east(),
-                                p.south(),
-                                p.west(),
+                                (Cardinal::North, p.north()),
+                                (Cardinal::East, p.east()),
+                                (Cardinal::South, p.south()),
+                                (Cardinal::West, p.west()),
                             ];
 
                             let n = p.cardinal_neighbors().collect::<Vec<_>>();
@@ -782,14 +801,14 @@ mod tests {
                         fn neighbors() {
                             let p: Point2D<$x> = Point2D::default();
                             let expected = vec![
-                                p.north(),
-                                p.north_east(),
-                                p.east(),
-                                p.south_east(),
-                                p.south(),
-                                p.south_west(),
-                                p.west(),
-                                p.north_west(),
+                                (Direction::North, p.north()),
+                                (Direction::NorthEast, p.north_east()),
+                                (Direction::East, p.east()),
+                                (Direction::SouthEast, p.south_east()),
+                                (Direction::South, p.south()),
+                                (Direction::SouthWest, p.south_west()),
+                                (Direction::West, p.west()),
+                                (Direction::NorthWest, p.north_west()),
                             ];
 
                             let n = p.neighbors().collect::<Vec<_>>();
@@ -875,8 +894,8 @@ mod tests {
                         fn cardinal_neighbors() {
                             let p: Point2D<$x> = Point2D::new(0, 0);
                             let expected = vec![
-                                p.north().unwrap(),
-                                p.east().unwrap(),
+                                (Cardinal::North, p.north().unwrap()),
+                                (Cardinal::East, p.east().unwrap()),
                             ];
 
                             let n = p.cardinal_neighbors().collect::<Vec<_>>();
@@ -884,10 +903,10 @@ mod tests {
 
                             let p: Point2D<$x> = Point2D::new(1, 1);
                             let expected = vec![
-                                p.north().unwrap(),
-                                p.east().unwrap(),
-                                p.south().unwrap(),
-                                p.west().unwrap(),
+                                (Cardinal::North, p.north().unwrap()),
+                                (Cardinal::East, p.east().unwrap()),
+                                (Cardinal::South, p.south().unwrap()),
+                                (Cardinal::West, p.west().unwrap()),
                             ];
 
                             let n = p.cardinal_neighbors().collect::<Vec<_>>();
@@ -898,9 +917,9 @@ mod tests {
                         fn neighbors() {
                             let p: Point2D<$x> = Point2D::new(0, 0);
                             let expected = vec![
-                                p.north().unwrap(),
-                                p.north_east().unwrap(),
-                                p.east().unwrap(),
+                                (Direction::North, p.north().unwrap()),
+                                (Direction::NorthEast, p.north_east().unwrap()),
+                                (Direction::East, p.east().unwrap()),
                             ];
 
                             let n = p.neighbors().collect::<Vec<_>>();
@@ -908,14 +927,14 @@ mod tests {
 
                             let p: Point2D<$x> = Point2D::new(1, 1);
                             let expected = vec![
-                                p.north().unwrap(),
-                                p.north_east().unwrap(),
-                                p.east().unwrap(),
-                                p.south_east().unwrap(),
-                                p.south().unwrap(),
-                                p.south_west().unwrap(),
-                                p.west().unwrap(),
-                                p.north_west().unwrap(),
+                                (Direction::North, p.north().unwrap()),
+                                (Direction::NorthEast, p.north_east().unwrap()),
+                                (Direction::East, p.east().unwrap()),
+                                (Direction::SouthEast, p.south_east().unwrap()),
+                                (Direction::South, p.south().unwrap()),
+                                (Direction::SouthWest, p.south_west().unwrap()),
+                                (Direction::West, p.west().unwrap()),
+                                (Direction::NorthWest, p.north_west().unwrap()),
                             ];
 
                             let n = p.neighbors().collect::<Vec<_>>();
@@ -1081,10 +1100,10 @@ mod tests {
         fn cardinal_neighbors() {
             let p = Location::new(2, 2);
             let expected = vec![
-                p.north().unwrap(),
-                p.east().unwrap(),
-                p.south().unwrap(),
-                p.west().unwrap(),
+                (Cardinal::North, p.north().unwrap()),
+                (Cardinal::East, p.east().unwrap()),
+                (Cardinal::South, p.south().unwrap()),
+                (Cardinal::West, p.west().unwrap()),
             ];
 
             let n = p.cardinal_neighbors().collect::<Vec<_>>();
@@ -1095,14 +1114,14 @@ mod tests {
         fn neighbors() {
             let p = Location::new(2, 2);
             let expected = vec![
-                p.north().unwrap(),
-                p.north_east().unwrap(),
-                p.east().unwrap(),
-                p.south_east().unwrap(),
-                p.south().unwrap(),
-                p.south_west().unwrap(),
-                p.west().unwrap(),
-                p.north_west().unwrap(),
+                (Direction::North, p.north().unwrap()),
+                (Direction::NorthEast, p.north_east().unwrap()),
+                (Direction::East, p.east().unwrap()),
+                (Direction::SouthEast, p.south_east().unwrap()),
+                (Direction::South, p.south().unwrap()),
+                (Direction::SouthWest, p.south_west().unwrap()),
+                (Direction::West, p.west().unwrap()),
+                (Direction::NorthWest, p.north_west().unwrap()),
             ];
 
             let n = p.neighbors().collect::<Vec<_>>();

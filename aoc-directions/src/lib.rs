@@ -439,6 +439,17 @@ impl TryFrom<char> for Relative {
     }
 }
 
+impl From<Cardinal> for Relative {
+    fn from(value: Cardinal) -> Self {
+        match value {
+            Cardinal::North => Self::Up,
+            Cardinal::East => Self::Right,
+            Cardinal::South => Self::Down,
+            Cardinal::West => Self::Left,
+        }
+    }
+}
+
 /// Indicates that this type has cardinal neighbors
 pub trait CardinalNeighbors {
     /// Get a thing north of us.

@@ -1,3 +1,4 @@
+use aoc_directions::{Cardinal, Direction};
 use aoc_geometry::Location;
 use thiserror::Error;
 
@@ -73,22 +74,28 @@ impl<T> Grid<T> {
     ///
     /// This considers all eight neighboring locations.
     ///
-    /// For convenience, this yields tuples of ([Location], `&T`)
-    pub fn neighbors(&self, location: &Location) -> impl Iterator<Item = (Location, &T)> {
+    /// For convenience, this yields tuples of ([Direction], [Location], `&T`)
+    pub fn neighbors(
+        &self,
+        location: &Location,
+    ) -> impl Iterator<Item = (Direction, Location, &T)> {
         location
             .neighbors()
-            .filter_map(|n| self.get(&n).map(|v| (n, v)))
+            .filter_map(|(dir, n)| self.get(&n).map(|v| (dir, n, v)))
     }
 
     /// Get an iterator over the valid grid cardinal neighbors of the given location.
     ///
     /// This considers all four cardinal neighboring locations.
     ///
-    /// For convenience, this yields tuples of ([Location], `&T`)
-    pub fn cardinal_neighbors(&self, location: &Location) -> impl Iterator<Item = (Location, &T)> {
+    /// For convenience, this yields tuples of ([Cardinal], [Location], `&T`)
+    pub fn cardinal_neighbors(
+        &self,
+        location: &Location,
+    ) -> impl Iterator<Item = (Cardinal, Location, &T)> {
         location
             .cardinal_neighbors()
-            .filter_map(|n| self.get(&n).map(|v| (n, v)))
+            .filter_map(|(dir, n)| self.get(&n).map(|v| (dir, n, v)))
     }
 }
 
