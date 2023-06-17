@@ -19,3 +19,6 @@ jobs:
         file: aoc-std/ci/test.yaml
         input_mapping:
           repo: aoc-std
+        params:
+          CARGO_REGISTIRES_ancalagon_INDEX: ((registry-index))
+          CARGO_REGISTIRES_ancalagon_TOKEN: ((registry-token))
