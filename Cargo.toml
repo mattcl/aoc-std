@@ -15,7 +15,7 @@ members = [
 [workspace.package]
 authors = ["Matt Chun-Lum <matt@questionable.engineering>"]
 edition = "2021"
-publish = false
+publish = ["ancalagon"]
 
 [workspace.dependencies]
 num = "0.4"

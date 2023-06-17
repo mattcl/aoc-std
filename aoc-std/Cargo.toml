@@ -8,8 +8,8 @@ publish.workspace = true
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-aoc-collections = { path = "../aoc-collections" }
-aoc-conversions = { path = "../aoc-conversions" }
-aoc-directions = { path = "../aoc-directions" }
-aoc-geometry = { path = "../aoc-geometry" }
-aoc-pathing = { path = "../aoc-pathing" }
+aoc-collections = { path = "../aoc-collections", version = "0.1", registry = "ancalagon" }
+aoc-conversions = { path = "../aoc-conversions", version = "0.1", registry = "ancalagon" }
+aoc-directions = { path = "../aoc-directions", version = "0.1", registry = "ancalagon" }
+aoc-geometry = { path = "../aoc-geometry", version = "0.1", registry = "ancalagon" }
+aoc-pathing = { path = "../aoc-pathing", version = "0.1", registry = "ancalagon" }
