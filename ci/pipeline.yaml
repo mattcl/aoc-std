@@ -8,13 +8,11 @@ resources:
         - 'README.md'
 jobs:
   - name: lint-and-test
-    public: true
     build_log_retention:
       builds: 50
     plan:
-      - in_parallel:
-        - get: aoc-std
-          trigger: true
+      - get: aoc-std
+        trigger: true
       - task: test-and-bench
         tags:
           - internal

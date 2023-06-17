@@ -3,7 +3,7 @@ image_resource:
   type: registry-image
   source:
     repository: rust
-    tag: 1.70
+    tag: "1.70"
 
 inputs:
   - name: repo
