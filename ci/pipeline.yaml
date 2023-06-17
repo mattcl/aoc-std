@@ -1,0 +1,23 @@
+resources:
+  - name: aoc-std
+    type: git
+    icon: github
+    source:
+      uri: https://github.com/mattcl/aoc-std.git
+      ignore_paths:
+        - 'README.md'
+jobs:
+  - name: lint-and-test
+    public: true
+    build_log_retention:
+      builds: 50
+    plan:
+      - in_parallel:
+        - get: aoc-std
+          trigger: true
+      - task: test-and-bench
+        tags:
+          - internal
+        file: aoc-std/ci/test.yaml
+        input_mapping:
+          repo: aoc-std
