@@ -20,5 +20,5 @@ jobs:
         input_mapping:
           repo: aoc-std
         params:
-          CARGO_REGISTRIES_ancalagon_INDEX: ((registry-index))
-          CARGO_REGISTRIES_ancalagon_TOKEN: ((registry-token))
+          CARGO_REGISTRIES_ANCALAGON_INDEX: ((registry-index))
+          CARGO_REGISTRIES_ANCALAGON_TOKEN: ((registry-token))
