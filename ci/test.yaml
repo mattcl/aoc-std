@@ -9,8 +9,8 @@ inputs:
   - name: repo
 
 params:
-  CARGO_REGISTIRES_ancalagon_INDEX:
-  CARGO_REGISTIRES_ancalagon_TOKEN:
+  CARGO_REGISTRIES_ancalagon_INDEX:
+  CARGO_REGISTRIES_ancalagon_TOKEN:
 
 caches:
   # yeah, I'm not sure how I feel about caching the registry like this,
