@@ -11,9 +11,9 @@
 #[inline]
 pub fn ascii_alpha_to_num(ch: char) -> u8 {
     if ch.is_lowercase() {
-        (ch as u8) - ('a' as u8)
+        (ch as u8) - b'a'
     } else {
-        (ch as u8) - ('A' as u8) + 26
+        (ch as u8) - b'A' + 26
     }
 }
 
@@ -27,7 +27,7 @@ pub fn ascii_alpha_to_num(ch: char) -> u8 {
 /// should be checked elsewhere.
 #[inline]
 pub fn ascii_lowercase_alpha_to_num(ch: char) -> u8 {
-    (ch as u8) - ('a' as u8)
+    (ch as u8) - b'a'
 }
 
 /// Converts a u8 produced by [ascii_alpha_to_num] back to a char.
@@ -43,9 +43,9 @@ pub fn ascii_lowercase_alpha_to_num(ch: char) -> u8 {
 #[inline]
 pub fn num_to_ascii_alpha(num: u8) -> char {
     if num > 25 {
-        (num + ('A' as u8) - 26) as char
+        (num + b'A' - 26) as char
     } else {
-        (num + ('a' as u8)) as char
+        (num + b'a') as char
     }
 }
 
@@ -59,7 +59,7 @@ pub fn num_to_ascii_alpha(num: u8) -> char {
 /// checked elsewhere.
 #[inline]
 pub fn num_to_lowercase_ascii_alpha(num: u8) -> char {
-    (num + ('a' as u8)) as char
+    (num + b'a') as char
 }
 
 #[cfg(test)]
