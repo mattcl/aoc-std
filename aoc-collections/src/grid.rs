@@ -55,7 +55,7 @@ impl<T> Grid<T> {
     pub fn set(&mut self, location: &Location, value: T) -> Result<(), GridError> {
         let e = self
             .get_mut(location)
-            .ok_or_else(|| GridError::OutOfBounds(*location))?;
+            .ok_or(GridError::OutOfBounds(*location))?;
         *e = value;
         Ok(())
     }
