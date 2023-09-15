@@ -219,6 +219,17 @@ pub enum Cardinal {
 }
 
 impl Cardinal {
+    /// Return the cardinal direction 90 degress to the right of ourself.
+    ///
+    /// Example:
+    /// ```
+    /// use aoc_directions::Cardinal;
+    ///
+    /// assert_eq!(Cardinal::North.right(), Cardinal::East);
+    /// assert_eq!(Cardinal::South.right(), Cardinal::West);
+    /// assert_eq!(Cardinal::East.right(), Cardinal::South);
+    /// assert_eq!(Cardinal::West.right(), Cardinal::North);
+    /// ```
     pub fn right(&self) -> Self {
         match self {
             Self::North => Self::East,
@@ -228,12 +239,43 @@ impl Cardinal {
         }
     }
 
+    /// Return the cardinal direction 90 degress to the left of ourself.
+    ///
+    /// Example:
+    /// ```
+    /// use aoc_directions::Cardinal;
+    ///
+    /// assert_eq!(Cardinal::North.left(), Cardinal::West);
+    /// assert_eq!(Cardinal::South.left(), Cardinal::East);
+    /// assert_eq!(Cardinal::East.left(), Cardinal::North);
+    /// assert_eq!(Cardinal::West.left(), Cardinal::South);
+    /// ```
     pub fn left(&self) -> Self {
         match self {
             Self::North => Self::West,
             Self::South => Self::East,
             Self::East => Self::North,
             Self::West => Self::South,
+        }
+    }
+
+    /// Return the cardinal direction 180 degress opposite of ourself.
+    ///
+    /// Example:
+    /// ```
+    /// use aoc_directions::Cardinal;
+    ///
+    /// assert_eq!(Cardinal::North.opposite(), Cardinal::South);
+    /// assert_eq!(Cardinal::South.opposite(), Cardinal::North);
+    /// assert_eq!(Cardinal::East.opposite(), Cardinal::West);
+    /// assert_eq!(Cardinal::West.opposite(), Cardinal::East);
+    /// ```
+    pub fn opposite(&self) -> Self {
+        match self {
+            Self::North => Self::South,
+            Self::South => Self::North,
+            Self::East => Self::West,
+            Self::West => Self::East,
         }
     }
 }
