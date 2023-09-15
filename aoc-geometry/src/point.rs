@@ -798,6 +798,16 @@ mod tests {
                         }
 
                         #[test]
+                        fn cardinal_neighbor() {
+                            let p: Point2D<$x> = Point2D::default();
+
+                            assert_eq!(p.cardinal_neighbor(Cardinal::North), p.north());
+                            assert_eq!(p.cardinal_neighbor(Cardinal::East), p.east());
+                            assert_eq!(p.cardinal_neighbor(Cardinal::South), p.south());
+                            assert_eq!(p.cardinal_neighbor(Cardinal::West), p.west());
+                        }
+
+                        #[test]
                         fn neighbors() {
                             let p: Point2D<$x> = Point2D::default();
                             let expected = vec![
@@ -911,6 +921,16 @@ mod tests {
 
                             let n = p.cardinal_neighbors().collect::<Vec<_>>();
                             assert_eq!(n, expected);
+                        }
+
+                        #[test]
+                        fn cardinal_neighbor() {
+                            let p: Point2D<$x> = Point2D::new(1, 1);
+
+                            assert_eq!(p.cardinal_neighbor(Cardinal::North), p.north());
+                            assert_eq!(p.cardinal_neighbor(Cardinal::East), p.east());
+                            assert_eq!(p.cardinal_neighbor(Cardinal::South), p.south());
+                            assert_eq!(p.cardinal_neighbor(Cardinal::West), p.west());
                         }
 
                         #[test]
@@ -1108,6 +1128,16 @@ mod tests {
 
             let n = p.cardinal_neighbors().collect::<Vec<_>>();
             assert_eq!(n, expected);
+        }
+
+        #[test]
+        fn cardinal_neighbor() {
+            let p = Location::new(1, 1);
+
+            assert_eq!(p.cardinal_neighbor(Cardinal::North), p.north());
+            assert_eq!(p.cardinal_neighbor(Cardinal::East), p.east());
+            assert_eq!(p.cardinal_neighbor(Cardinal::South), p.south());
+            assert_eq!(p.cardinal_neighbor(Cardinal::West), p.west());
         }
 
         #[test]

@@ -451,7 +451,7 @@ impl From<Cardinal> for Relative {
 }
 
 /// Indicates that this type has cardinal neighbors
-pub trait CardinalNeighbors {
+pub trait CardinalNeighbors: Sized {
     /// Get a thing north of us.
     fn north(&self) -> Self;
 
@@ -463,10 +463,20 @@ pub trait CardinalNeighbors {
 
     /// Get a thing west of us.
     fn west(&self) -> Self;
+
+    /// Get a thing in `Cardinal` dir relative to us.
+    fn cardinal_neighbor(&self, dir: Cardinal) -> Self {
+        match dir {
+            Cardinal::North => <Self as CardinalNeighbors>::north(self),
+            Cardinal::East => <Self as CardinalNeighbors>::east(self),
+            Cardinal::South => <Self as CardinalNeighbors>::south(self),
+            Cardinal::West => <Self as CardinalNeighbors>::west(self),
+        }
+    }
 }
 
 /// Indicates that this type has ordinal neighbors
-pub trait OrdinalNeighbors {
+pub trait OrdinalNeighbors: Sized {
     /// Get a thing north east of us.
     fn north_east(&self) -> Self;
 
@@ -493,6 +503,16 @@ pub trait BoundedCardinalNeighbors: Sized {
 
     /// Get a thing west of us.
     fn west(&self) -> Option<Self>;
+
+    /// Get a thing in `Cardinal` dir relative to us.
+    fn cardinal_neighbor(&self, dir: Cardinal) -> Option<Self> {
+        match dir {
+            Cardinal::North => <Self as BoundedCardinalNeighbors>::north(self),
+            Cardinal::East => <Self as BoundedCardinalNeighbors>::east(self),
+            Cardinal::South => <Self as BoundedCardinalNeighbors>::south(self),
+            Cardinal::West => <Self as BoundedCardinalNeighbors>::west(self),
+        }
+    }
 }
 
 /// Indicates that this type has ordinal neighbors, but some do not exist
