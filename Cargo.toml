@@ -1,5 +1,5 @@
 [workspace]
-
+resolver = "2"
 members = [
     # main crate
     "aoc-std",
@@ -10,6 +10,8 @@ members = [
     "aoc-directions",
     "aoc-geometry",
     "aoc-pathing",
+    "aoc-types",
+    "aoc-vm",
 ]
 
 [workspace.package]

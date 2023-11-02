@@ -30,6 +30,19 @@ pub fn ascii_lowercase_alpha_to_num(ch: char) -> u8 {
     (ch as u8) - b'a'
 }
 
+/// Converts an uppercase ascii alpha char to u8.
+///
+/// The conversion is as follows:
+///
+///   `A..=Z -> 26..=51`
+///
+/// This is unchecked and does not verify the char is ascii or uppercase. That
+/// should be checked elsewhere.
+#[inline]
+pub fn ascii_uppercase_alpha_to_num(ch: char) -> u8 {
+    (ch as u8) - b'A' + 26
+}
+
 /// Converts a u8 produced by [ascii_alpha_to_num] back to a char.
 ///
 /// The conversion is as follows:
@@ -62,31 +75,46 @@ pub fn num_to_lowercase_ascii_alpha(num: u8) -> char {
     (num + b'a') as char
 }
 
+/// Converts a u8 produced by [ascii_uppercase_alpha_to_num] back to a char.
+///
+/// The conversion is as follows:
+///
+///   `26..=51 -> A..=Z`
+///
+/// This is unchecked and does not verify the value is valid. That should be
+/// checked elsewhere.
+#[inline]
+pub fn num_to_uppercase_ascii_alpha(num: u8) -> char {
+    (num - 26 + b'A') as char
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn to_num() {
-        for (idx, ch) in ('a'..'z').enumerate() {
+        for (idx, ch) in ('a'..='z').enumerate() {
             assert_eq!(ascii_alpha_to_num(ch), idx as u8);
             assert_eq!(ascii_lowercase_alpha_to_num(ch), idx as u8);
         }
 
-        for (idx, ch) in ('A'..'Z').enumerate() {
+        for (idx, ch) in ('A'..='Z').enumerate() {
             assert_eq!(ascii_alpha_to_num(ch), idx as u8 + 26);
+            assert_eq!(ascii_uppercase_alpha_to_num(ch), idx as u8 + 26);
         }
     }
 
     #[test]
     fn to_char() {
-        for (idx, ch) in ('a'..'z').enumerate() {
+        for (idx, ch) in ('a'..='z').enumerate() {
             assert_eq!(num_to_ascii_alpha(idx as u8), ch);
             assert_eq!(num_to_lowercase_ascii_alpha(idx as u8), ch);
         }
 
-        for (idx, ch) in ('A'..'Z').enumerate() {
+        for (idx, ch) in ('A'..='Z').enumerate() {
             assert_eq!(num_to_ascii_alpha(idx as u8 + 26), ch);
+            assert_eq!(num_to_uppercase_ascii_alpha(idx as u8 + 26), ch);
         }
     }
 }
