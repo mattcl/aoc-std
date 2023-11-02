@@ -43,6 +43,12 @@ fn path<N, C>(cur: usize, map: &FxIndexMap<N, (usize, C)>) -> Vec<&N> {
     v
 }
 
+/// The result of searching for the shortest path via Dijkstra.
+///
+/// This will either be `Success` or `NoPath`, depending on the result of the
+/// search.
+///
+/// For convenience, `cost()`, `path_len()`, and `path()` are provided.
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum DijkstraResult<N, C>
 where
@@ -95,6 +101,17 @@ where
     }
 }
 
+/// Find the shortest path using Dijkstra.
+///
+/// This runs until `stop` returns `true` or it has exhausted the search space,
+/// at which point it returns a [DijkstraResult] which exposes information about
+/// the shortest path, if one existed.
+///
+/// * `start` is the node representing the start position
+/// * `edges` returns a list of edges (neighbors) for a given node paired with
+///   the costs of moving to each neighbor.
+/// * `stop` is given the current node and returns `true` if we should stop
+///    searching (we've found the desired end point).
 pub fn dijkstra<N, C, E, I, S>(start: &N, edges: &mut E, stop: &mut S) -> DijkstraResult<N, C>
 where
     N: Clone + Eq + Hash,
