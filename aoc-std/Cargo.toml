@@ -15,3 +15,4 @@ aoc-directions = { path = "../aoc-directions", version = "0.1", registry = "anca
 aoc-geometry = { path = "../aoc-geometry", version = "0.1", registry = "ancalagon" }
 aoc-pathing = { path = "../aoc-pathing", version = "0.1", registry = "ancalagon" }
 aoc-types = { path = "../aoc-types", version = "0.1", registry = "ancalagon" }
+aoc-vm = { path = "../aoc-vm", version = "0.1", registry = "ancalagon" }
