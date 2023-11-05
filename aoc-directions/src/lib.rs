@@ -481,6 +481,20 @@ impl TryFrom<char> for Relative {
     }
 }
 
+impl FromStr for Relative {
+    type Err = DirectionError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "Left" | "left" | "L" | "l" => Ok(Self::Left),
+            "Right" | "right" | "R" | "r" => Ok(Self::Right),
+            "Up" | "up" | "U" | "u" => Ok(Self::Up),
+            "Down" | "down" | "D" | "d" => Ok(Self::Down),
+            _ => Err(DirectionError::RelativeParseError(s.into())),
+        }
+    }
+}
+
 impl From<Cardinal> for Relative {
     fn from(value: Cardinal) -> Self {
         match value {
@@ -593,6 +607,29 @@ mod tests {
 
             for v in ["West", "west", "W", "w"] {
                 assert_eq!(Cardinal::from_str(v).unwrap(), Cardinal::West);
+            }
+        }
+    }
+
+    mod relative {
+        use super::super::*;
+
+        #[test]
+        fn parsing() {
+            for v in ["Right", "right", "R", "r"] {
+                assert_eq!(Relative::from_str(v).unwrap(), Relative::Right);
+            }
+
+            for v in ["Left", "left", "L", "l"] {
+                assert_eq!(Relative::from_str(v).unwrap(), Relative::Left);
+            }
+
+            for v in ["Up", "up", "U", "u"] {
+                assert_eq!(Relative::from_str(v).unwrap(), Relative::Up);
+            }
+
+            for v in ["Down", "down", "D", "d"] {
+                assert_eq!(Relative::from_str(v).unwrap(), Relative::Down);
             }
         }
     }
