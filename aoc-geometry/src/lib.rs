@@ -1,3 +1,6 @@
+//! This module contains structs repreesnting different geometries.
+//!
+//! These primarily include points and bounds.
 pub mod bound;
 pub mod point;
 

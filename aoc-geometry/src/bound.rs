@@ -5,8 +5,8 @@
 //! occupy.
 //!
 //! For convenience 2d and 3d bounds have specialized implementations that
-//! expose specific attributes like min_x and max_y. Higher dimensional bounds
-//! are available but are generic via arrays.
+//! expose specific attributes like `min_x` and `max_y`. Higher dimensional
+//! bounds are available but are generic via arrays.
 use std::{hash::Hash, iter::Product};
 
 use num::{Bounded, Num};
