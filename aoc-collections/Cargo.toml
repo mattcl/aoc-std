@@ -1,6 +1,6 @@
 [package]
 name = "aoc-collections"
-version = "0.1.1"
+version = "0.1.2"
 authors.workspace = true
 edition.workspace = true
 publish.workspace = true
@@ -10,7 +10,7 @@ rust-version.workspace = true
 
 [dependencies]
 aoc-directions = { path = "../aoc-directions", version = "0.1", registry = "ancalagon" }
-aoc-geometry = { path = "../aoc-geometry", version = "0.1", registry = "ancalagon" }
+aoc-geometry = { path = "../aoc-geometry", version = "0.2", registry = "ancalagon" }
 indexmap = "1.9.2"
 rustc-hash = { workspace = true }
 thiserror = { workspace = true }
