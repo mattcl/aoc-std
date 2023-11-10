@@ -18,7 +18,7 @@ members = [
 authors = ["Matt Chun-Lum <matt@questionable.engineering>"]
 edition = "2021"
 publish = ["ancalagon"]
-rust-version = "1.65.0"
+rust-version = "1.66.1"
 
 [workspace.dependencies]
 nom = "7.1"
