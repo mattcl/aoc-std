@@ -43,6 +43,12 @@ impl Deref for Alpha {
     }
 }
 
+impl AsRef<Alpha> for Alpha {
+    fn as_ref(&self) -> &Alpha {
+        self
+    }
+}
+
 impl TryFrom<char> for Alpha {
     type Error = AlphaError;
 
@@ -61,8 +67,20 @@ impl From<LowerAlpha> for Alpha {
     }
 }
 
+impl From<&LowerAlpha> for Alpha {
+    fn from(value: &LowerAlpha) -> Self {
+        Alpha(value.0)
+    }
+}
+
 impl From<UpperAlpha> for Alpha {
     fn from(value: UpperAlpha) -> Self {
+        Alpha(value.0)
+    }
+}
+
+impl From<&UpperAlpha> for Alpha {
+    fn from(value: &UpperAlpha) -> Self {
         Alpha(value.0)
     }
 }
@@ -70,6 +88,24 @@ impl From<UpperAlpha> for Alpha {
 impl From<Alpha> for u8 {
     fn from(value: Alpha) -> Self {
         ascii_alpha_to_num(*value)
+    }
+}
+
+impl From<&Alpha> for u8 {
+    fn from(value: &Alpha) -> Self {
+        ascii_alpha_to_num(**value)
+    }
+}
+
+impl From<Alpha> for char {
+    fn from(value: Alpha) -> Self {
+        value.0
+    }
+}
+
+impl From<&Alpha> for char {
+    fn from(value: &Alpha) -> Self {
+        value.0
     }
 }
 
@@ -104,6 +140,12 @@ impl Deref for LowerAlpha {
     }
 }
 
+impl AsRef<LowerAlpha> for LowerAlpha {
+    fn as_ref(&self) -> &LowerAlpha {
+        self
+    }
+}
+
 impl TryFrom<char> for LowerAlpha {
     type Error = AlphaError;
 
@@ -119,6 +161,24 @@ impl TryFrom<char> for LowerAlpha {
 impl From<LowerAlpha> for u8 {
     fn from(value: LowerAlpha) -> Self {
         ascii_lowercase_alpha_to_num(*value)
+    }
+}
+
+impl From<&LowerAlpha> for u8 {
+    fn from(value: &LowerAlpha) -> Self {
+        ascii_lowercase_alpha_to_num(**value)
+    }
+}
+
+impl From<LowerAlpha> for char {
+    fn from(value: LowerAlpha) -> Self {
+        value.0
+    }
+}
+
+impl From<&LowerAlpha> for char {
+    fn from(value: &LowerAlpha) -> Self {
+        value.0
     }
 }
 
@@ -153,6 +213,12 @@ impl Deref for UpperAlpha {
     }
 }
 
+impl AsRef<UpperAlpha> for UpperAlpha {
+    fn as_ref(&self) -> &UpperAlpha {
+        self
+    }
+}
+
 impl TryFrom<char> for UpperAlpha {
     type Error = AlphaError;
 
@@ -168,6 +234,24 @@ impl TryFrom<char> for UpperAlpha {
 impl From<UpperAlpha> for u8 {
     fn from(value: UpperAlpha) -> Self {
         ascii_uppercase_alpha_to_num(*value)
+    }
+}
+
+impl From<&UpperAlpha> for u8 {
+    fn from(value: &UpperAlpha) -> Self {
+        ascii_uppercase_alpha_to_num(**value)
+    }
+}
+
+impl From<UpperAlpha> for char {
+    fn from(value: UpperAlpha) -> Self {
+        value.0
+    }
+}
+
+impl From<&UpperAlpha> for char {
+    fn from(value: &UpperAlpha) -> Self {
+        value.0
     }
 }
 

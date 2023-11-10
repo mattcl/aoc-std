@@ -1,5 +1,5 @@
 //! Newtypes and aliases for common forms of AoC data.
 
-pub use chars::{Alpha, LowerAlpha, UpperAlpha};
+pub mod chars;
 
-mod chars;
+pub use chars::{Alpha, LowerAlpha, UpperAlpha};
