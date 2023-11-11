@@ -16,4 +16,4 @@ pub mod char_set;
 pub mod grid;
 
 pub use char_set::CharSet;
-pub use grid::Grid;
+pub use grid::{CharGrid, DigitGrid, Grid};

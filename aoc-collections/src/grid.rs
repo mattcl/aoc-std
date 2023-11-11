@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use aoc_directions::{Cardinal, Direction};
 use aoc_geometry::Location;
 use thiserror::Error;
@@ -6,6 +8,9 @@ use thiserror::Error;
 pub enum GridError {
     #[error("Location {0:?} does not exist in the grid ")]
     OutOfBounds(Location),
+
+    #[error("The grid does not have a consistent width")]
+    InconsistentWidth,
 }
 
 /// A grid a two-dimensional collection of `T`, optionally indexed by [Location].
@@ -29,6 +34,27 @@ impl<T> Grid<T> {
             width,
             height,
         }
+    }
+
+    /// Returns `true` if every row in the grid is the same width.
+    ///
+    /// We don't check this as part of [Grid::new] for speed reasons, but it is
+    /// useful in other instances.
+    /// # Examples
+    /// ```
+    /// use aoc_collections::Grid;
+    ///
+    /// let g = Grid::new(vec![vec!['a'; 10]; 12]);
+    /// assert!(g.consistent_width());
+    ///
+    /// let i = Grid::new(vec![
+    ///     vec![0_i16; 10],
+    ///     vec![0_i16; 11],
+    /// ]);
+    /// assert!(!i.consistent_width());
+    /// ```
+    pub fn consistent_width(&self) -> bool {
+        self.locations.iter().all(|r| r.len() == self.width())
     }
 
     /// Attempt to get a reference to the value that corresponds to the given location.
@@ -99,9 +125,111 @@ impl<T> Grid<T> {
     }
 }
 
+impl<T: Default + Clone> Grid<T> {
+    /// Construct an empty grid of type `T` with the given `width` and `height`.
+    ///
+    /// `T` must implement `Default` and `Clone`
+    ///
+    /// # Examples
+    /// ```
+    /// use aoc_collections::Grid;
+    ///
+    /// let g: Grid<u8> = Grid::default_with_dimensions(10, 15);
+    /// assert_eq!(g.width(), 10);
+    /// assert_eq!(g.height(), 15);
+    /// ```
+    pub fn default_with_dimensions(width: usize, height: usize) -> Self {
+        vec![vec![T::default(); width]; height].into()
+    }
+}
+
 impl<T> From<Vec<Vec<T>>> for Grid<T> {
     fn from(value: Vec<Vec<T>>) -> Self {
         Self::new(value)
+    }
+}
+
+/// A [Grid] of single characters.
+///
+/// This may be constructed directly from a newline-delimited string, where
+/// every non-newline char will be added to the grid.
+///
+/// # Examples
+/// ```
+/// use std::str::FromStr;
+/// use aoc_collections::{Grid, CharGrid};
+///
+/// let input = "abc\ndef";
+/// let g = CharGrid::from_str(input).unwrap();
+/// let expected = Grid::new(vec![
+///     vec!['a', 'b', 'c'],
+///     vec!['d', 'e', 'f'],
+/// ]);
+///
+/// assert_eq!(g, expected);
+/// ```
+pub type CharGrid = Grid<char>;
+
+impl FromStr for CharGrid {
+    type Err = GridError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let g = Self::new(
+            s.trim()
+                .lines()
+                .map(|line| line.chars().collect::<Vec<_>>())
+                .collect(),
+        );
+
+        if !g.consistent_width() {
+            return Err(GridError::InconsistentWidth);
+        }
+
+        Ok(g)
+    }
+}
+
+/// A [Grid] of single unsigned digits.
+///
+/// This may be constructed directly from a newline-delimited string, where
+/// every non-newline char will be coverted to a `u8` and added to the grid.
+///
+/// # Examples
+/// ```
+/// use std::str::FromStr;
+/// use aoc_collections::{Grid, DigitGrid};
+///
+/// let input = "012\n345";
+/// let g = DigitGrid::from_str(input).unwrap();
+/// let expected: Grid<u8> = Grid::new(vec![
+///     vec![0, 1, 2],
+///     vec![3, 4, 5],
+/// ]);
+///
+/// assert_eq!(g, expected);
+/// ```
+pub type DigitGrid = Grid<u8>;
+
+impl FromStr for DigitGrid {
+    type Err = GridError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let g = Self::new(
+            s.trim()
+                .lines()
+                .map(|line| {
+                    line.chars()
+                        .map(|ch| ch.to_digit(10).unwrap_or_default() as u8)
+                        .collect::<Vec<_>>()
+                })
+                .collect(),
+        );
+
+        if !g.consistent_width() {
+            return Err(GridError::InconsistentWidth);
+        }
+
+        Ok(g)
     }
 }
 
