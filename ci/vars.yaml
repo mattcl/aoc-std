@@ -2,3 +2,6 @@ lib:
   name: aoc-std
   repo:
     uri: https://github.com/mattcl/aoc-std.git
+
+lint-and-test:
+  script-path: ci/scripts/lint-and-test.sh
