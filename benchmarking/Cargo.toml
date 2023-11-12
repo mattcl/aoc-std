@@ -1,0 +1,19 @@
+[package]
+name = "benchmarking"
+version = "0.1.0"
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish = false
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[[bench]]
+name = "char_set"
+harness = false
+
+[dependencies]
+aoc-std = { path = "../aoc-std", version = "0.3.3", registry = "ancalagon" }
+
+[dev-dependencies]
+divan = "0.1.2"
+rustc-hash = "1.1.0"

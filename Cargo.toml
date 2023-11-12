@@ -12,6 +12,9 @@ members = [
     "aoc-pathing",
     "aoc-types",
     "aoc-vm",
+
+    # test-only
+    "benchmarking",
 ]
 
 [workspace.package]

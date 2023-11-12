@@ -82,7 +82,7 @@ impl CharSet {
     /// ```
     #[inline]
     pub fn contains<T: AsRef<Alpha>>(&self, value: T) -> bool {
-        self.0 & 1 << u8::from(value.as_ref()) > 0
+        self.0 & (1 << u8::from(value.as_ref())) > 0
     }
 
     /// Returns true if this set contains a value from a char.
