@@ -1,7 +1,6 @@
 use std::collections::VecDeque;
 
-use num::{Num, Bounded};
-
+use num::{Bounded, Num};
 
 /// Return a minimum distance matrix compatible with [floyd_warshall].
 ///
@@ -58,8 +57,7 @@ where
     for k in 0..len {
         for i in 0..len {
             for j in 0..len {
-                path_matrix[i][j] =
-                    path_matrix[i][j].min(path_matrix[i][k] + path_matrix[k][j]);
+                path_matrix[i][j] = path_matrix[i][j].min(path_matrix[i][k] + path_matrix[k][j]);
             }
         }
     }
@@ -70,10 +68,7 @@ where
 /// reconstruction.
 ///
 /// https://en.wikipedia.org/wiki/Floyd%E2%80%93Warshall_algorithm
-pub fn floyd_warshall_with_path<T>(
-    path_matrix: &mut [Vec<T>],
-    vertex_matrix: &mut [Vec<usize>],
-)
+pub fn floyd_warshall_with_path<T>(path_matrix: &mut [Vec<T>], vertex_matrix: &mut [Vec<usize>])
 where
     T: Num + Ord + Copy,
 {
@@ -91,7 +86,11 @@ where
     }
 }
 
-pub fn reconstruct_path(start: usize, end: usize, vertex_matrix: &[Vec<usize>]) -> Option<VecDeque<usize>> {
+pub fn reconstruct_path(
+    start: usize,
+    end: usize,
+    vertex_matrix: &[Vec<usize>],
+) -> Option<VecDeque<usize>> {
     let mut p = VecDeque::default();
     let mut v = end;
 
@@ -116,11 +115,7 @@ mod tests {
     #[test]
     fn path_matrix_init() {
         let inf = i64::MAX / 3;
-        let expected = vec![
-            vec![0, inf, inf],
-            vec![inf, 0, inf],
-            vec![inf, inf, 0],
-        ];
+        let expected = vec![vec![0, inf, inf], vec![inf, 0, inf], vec![inf, inf, 0]];
 
         assert_eq!(make_fw_dist_matrix::<i64>(3), expected);
     }
@@ -128,11 +123,7 @@ mod tests {
     #[test]
     fn vertex_matrix_init() {
         let inf = usize::MAX;
-        let expected = vec![
-            vec![0, inf, inf],
-            vec![inf, 1, inf],
-            vec![inf, inf, 2],
-        ];
+        let expected = vec![vec![0, inf, inf], vec![inf, 1, inf], vec![inf, inf, 2]];
 
         assert_eq!(make_fw_vertex_matrix(3), expected);
     }
