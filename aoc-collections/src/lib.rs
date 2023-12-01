@@ -14,6 +14,8 @@ pub type FxIndexSet<K> = IndexSet<K, BuildHasherDefault<FxHasher>>;
 // Our stuff
 pub mod char_set;
 pub mod grid;
+pub mod int_vec;
 
 pub use char_set::CharSet;
 pub use grid::{CharGrid, DigitGrid, Grid};
+pub use int_vec::{IntVec, IntVecError};

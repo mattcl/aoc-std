@@ -11,9 +11,14 @@ publish = false
 name = "char_set"
 harness = false
 
+[[bench]]
+name = "int_vec"
+harness = false
+
 [dependencies]
-aoc-std = { path = "../aoc-std", version = "0.3.3", registry = "ancalagon" }
+aoc-std = { path = "../aoc-std", version = "0.3.4", registry = "ancalagon" }
 
 [dev-dependencies]
 divan = "0.1.2"
+rand = "0.8.5"
 rustc-hash = "1.1.0"

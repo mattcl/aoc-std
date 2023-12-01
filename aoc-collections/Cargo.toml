@@ -1,6 +1,6 @@
 [package]
 name = "aoc-collections"
-version = "0.2.2"
+version = "0.3.0"
 authors.workspace = true
 edition.workspace = true
 publish.workspace = true
@@ -14,5 +14,6 @@ aoc-directions = { path = "../aoc-directions", version = "0.1", registry = "anca
 aoc-geometry = { path = "../aoc-geometry", version = "0.2", registry = "ancalagon" }
 aoc-types = { path = "../aoc-types", version = "0.1.1", registry = "ancalagon" }
 indexmap = "1.9.2"
+nom = { workspace = true }
 rustc-hash = { workspace = true }
 thiserror = { workspace = true }
