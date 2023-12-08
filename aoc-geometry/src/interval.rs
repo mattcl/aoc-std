@@ -1,6 +1,6 @@
 use std::hash::Hash;
 
-use num::{Num, Bounded};
+use num::{Bounded, Num};
 
 use crate::Intersect;
 
@@ -17,7 +17,7 @@ use crate::Intersect;
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Interval<T>
 where
-    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
 {
     pub start: T,
     pub end: T,
@@ -25,7 +25,7 @@ where
 
 impl<T> Interval<T>
 where
-    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
 {
     /// Make a new interval from `min(start, end)..=max(start, end)`.
     ///
@@ -39,7 +39,10 @@ where
     ///
     /// ```
     pub fn new(start: T, end: T) -> Self {
-        Self { start: start.min(end), end: start.max(end) }
+        Self {
+            start: start.min(end),
+            end: start.max(end),
+        }
     }
 
     /// Returns true if `self` contains the `value`.
@@ -90,7 +93,10 @@ where
     /// assert!(!s.overlaps(&o));
     /// ```
     pub fn overlaps(&self, other: &Self) -> bool {
-        self.contains(other) || self.is_contained_by(other) || self.right_of_and_overlaps(other) || self.left_of_and_overlaps(other)
+        self.contains(other)
+            || self.is_contained_by(other)
+            || self.right_of_and_overlaps(other)
+            || self.left_of_and_overlaps(other)
     }
 
     /// Return true if `self` entirely contains `other`.
@@ -180,9 +186,7 @@ where
     /// assert!(!s.left_of_and_overlaps(&o));
     /// ```
     pub fn left_of_and_overlaps(&self, other: &Self) -> bool {
-        self.start <= other.start
-            && other.start <= self.end
-            && self.end < other.end
+        self.start <= other.start && other.start <= self.end && self.end < other.end
     }
 
     /// Return true if `self` is to the right of and overlaps `other`.
@@ -214,9 +218,7 @@ where
     /// assert!(!s.right_of_and_overlaps(&o));
     /// ```
     pub fn right_of_and_overlaps(&self, other: &Self) -> bool {
-        other.start < self.start
-            && self.start <= other.end
-            && other.end <= self.end
+        other.start < self.start && self.start <= other.end && other.end <= self.end
     }
 
     /// Partition `self` using `other`.
@@ -301,19 +303,19 @@ where
     /// );
     /// ```
     pub fn partition_by(&self, other: &Self) -> IntervalPartition<T> {
-        if other.contains(&self) {
+        if other.contains(self) {
             IntervalPartition::EntirelyContained { overlap: *self }
-        } else if other.right_of_and_overlaps(&self) {
+        } else if other.right_of_and_overlaps(self) {
             let left = Self {
                 start: self.start,
                 end: other.start - T::one(),
             };
             let overlap = Self {
                 start: other.start,
-                end: self.end
+                end: self.end,
             };
             IntervalPartition::RemainderLeft { left, overlap }
-        } else if other.left_of_and_overlaps(&self) {
+        } else if other.left_of_and_overlaps(self) {
             let overlap = Self {
                 start: self.start,
                 end: other.end,
@@ -323,7 +325,7 @@ where
                 end: self.end,
             };
             IntervalPartition::RemainderRight { overlap, right }
-        } else if other.is_contained_by(&self) {
+        } else if other.is_contained_by(self) {
             let left = Self {
                 start: self.start,
                 end: other.start - T::one(),
@@ -336,7 +338,11 @@ where
                 start: other.end + T::one(),
                 end: self.end,
             };
-            IntervalPartition::Bisecting { left, overlap, right }
+            IntervalPartition::Bisecting {
+                left,
+                overlap,
+                right,
+            }
         } else {
             IntervalPartition::NoOverlap
         }
@@ -365,7 +371,7 @@ where
 
 impl<T> Intersect for Interval<T>
 where
-    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
 {
     type Intersection = Self;
 
@@ -374,18 +380,16 @@ where
             return None;
         }
 
-        Some(
-            Self {
-                start: self.start.max(other.start),
-                end: self.end.min(other.end),
-            }
-        )
+        Some(Self {
+            start: self.start.max(other.start),
+            end: self.end.min(other.end),
+        })
     }
 }
 
 impl<T> From<(T, T)> for Interval<T>
 where
-    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
 {
     fn from(value: (T, T)) -> Self {
         Self::new(value.0, value.1)
@@ -394,16 +398,18 @@ where
 
 impl<T> Ord for Interval<T>
 where
-    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
 {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        self.start.cmp(&other.start).then_with(|| self.end.cmp(&other.end))
+        self.start
+            .cmp(&other.start)
+            .then_with(|| self.end.cmp(&other.end))
     }
 }
 
 impl<T> PartialOrd for Interval<T>
 where
-    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
 {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         Some(self.cmp(other))
@@ -416,11 +422,23 @@ where
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum IntervalPartition<T>
 where
-    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
 {
     NoOverlap,
-    EntirelyContained { overlap: Interval<T> },
-    RemainderLeft { left: Interval<T>, overlap: Interval<T> },
-    RemainderRight { overlap: Interval<T>, right: Interval<T> },
-    Bisecting { left: Interval<T>, overlap: Interval<T>, right: Interval<T> }
+    EntirelyContained {
+        overlap: Interval<T>,
+    },
+    RemainderLeft {
+        left: Interval<T>,
+        overlap: Interval<T>,
+    },
+    RemainderRight {
+        overlap: Interval<T>,
+        right: Interval<T>,
+    },
+    Bisecting {
+        left: Interval<T>,
+        overlap: Interval<T>,
+        right: Interval<T>,
+    },
 }
