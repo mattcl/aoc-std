@@ -102,6 +102,15 @@ where
     }
 }
 
+impl<T> Sum for Point2D<T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
+        iter.reduce(Self::add).unwrap_or_default()
+    }
+}
+
 impl<T> AocPoint for Point2D<T>
 where
     T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
@@ -443,6 +452,15 @@ where
             y: self.y + rhs.y,
             z: self.z + rhs.z,
         }
+    }
+}
+
+impl<T> Sum for Point3D<T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
+        iter.reduce(Self::add).unwrap_or_default()
     }
 }
 
@@ -978,6 +996,21 @@ mod tests {
             let p2 = Point2D::new(5_u16, 7);
             assert_eq!(p1.manhattan_dist(&p2), 7);
             assert_eq!(p2.manhattan_dist(&p1), 7);
+        }
+
+        #[test]
+        fn summation() {
+            let v = vec![
+                Point2D::new(2_i64, 3),
+                Point2D::new(-1_i64, 15),
+                Point2D::new(12_i64, 11),
+                Point2D::new(71_i64, 2),
+                Point2D::new(5_i64, 0),
+            ];
+
+            let expected = Point2D::new(89_i64, 31);
+
+            assert_eq!(v.into_iter().sum::<Point2D<i64>>(), expected);
         }
 
         test_neighbors! {
