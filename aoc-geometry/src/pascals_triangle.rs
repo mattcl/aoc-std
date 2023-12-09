@@ -2,7 +2,6 @@ use std::ops::Deref;
 
 use num::{Bounded, Num};
 
-
 /// A two-dimensional representaiton of a Pascal's Triangle of a given number
 /// of rows.
 ///
@@ -61,7 +60,11 @@ where
         for i in 1..num_rows {
             let mut layer = Vec::with_capacity(i + 1);
             layer.push(T::one());
-            layer.extend(triangle[i - 1].windows(2).map(|window| window[0] + window[1]));
+            layer.extend(
+                triangle[i - 1]
+                    .windows(2)
+                    .map(|window| window[0] + window[1]),
+            );
             layer.push(T::one());
 
             triangle.push(layer);
