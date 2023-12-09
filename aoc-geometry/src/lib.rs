@@ -4,6 +4,7 @@
 pub mod bound;
 pub mod intersect;
 pub mod interval;
+pub mod pascals_triangle;
 pub mod point;
 pub mod rect;
 
@@ -13,3 +14,4 @@ pub use intersect::Intersect;
 pub use interval::{Interval, IntervalPartition};
 pub use point::{AocPoint, Location, Point2D, Point3D, PointND};
 pub use rect::Rectangle;
+pub use pascals_triangle::PascalsTriangle;
