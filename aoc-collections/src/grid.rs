@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use aoc_directions::{Cardinal, Direction};
+use aoc_directions::{BoundedCardinalNeighbors, Cardinal, Direction};
 use aoc_geometry::Location;
 use thiserror::Error;
 
@@ -122,6 +122,20 @@ impl<T> Grid<T> {
         location
             .cardinal_neighbors()
             .filter_map(|(dir, n)| self.get(&n).map(|v| (dir, n, v)))
+    }
+
+    /// Get the specified cardinal_neighbor and its value from the grid, if it
+    /// exists.
+    ///
+    /// For convenience, this yields tuples of ([Cardinal], `&T`)
+    pub fn cardinal_neighbor(
+        &self,
+        location: &Location,
+        direction: Cardinal,
+    ) -> Option<(Location, &T)> {
+        location
+            .cardinal_neighbor(direction)
+            .and_then(|neighbor| self.get(&neighbor).map(|v| (neighbor, v)))
     }
 }
 
