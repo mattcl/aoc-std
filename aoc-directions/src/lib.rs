@@ -85,7 +85,7 @@ pub enum DirectionError {
 /// let b = Direction::East as u8;
 /// assert_eq!(a | b, 0b101);
 /// ```
-#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq, PartialOrd, Ord, Hash)]
 pub enum Direction {
     North = 1,
     NorthEast = 2,
@@ -210,7 +210,7 @@ impl From<&VertHexDir> for Direction {
 /// assert_eq!(Cardinal::try_from('n').unwrap(), Cardinal::North);
 /// assert_eq!(Cardinal::try_from('N').unwrap(), Cardinal::North);
 /// ```
-#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq, PartialOrd, Ord, Hash)]
 pub enum Cardinal {
     North = 1,
     East = 4,
@@ -344,7 +344,7 @@ impl TryFrom<char> for Cardinal {
 ///
 /// // etc..
 /// ```
-#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq, PartialOrd, Ord, Hash)]
 pub enum HorizHexDir {
     North = 1,
     NorthEast = 2,
@@ -412,7 +412,7 @@ impl fmt::Display for HorizHexDir {
 ///
 /// // etc..
 /// ```
-#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq, PartialOrd, Ord, Hash)]
 pub enum VertHexDir {
     East = 4,
     NorthEast = 2,
@@ -445,13 +445,25 @@ impl fmt::Display for VertHexDir {
 }
 
 /// Relative directions are directions like 'left' and 'right'.
-#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq, PartialOrd, Ord, Hash)]
 #[non_exhaustive]
 pub enum Relative {
     Left,
     Right,
     Up,
     Down,
+}
+
+impl Relative {
+    /// Returns the relative direction opposite to `self`.
+    pub fn opposite(&self) -> Self {
+        match self {
+            Self::Left => Self::Right,
+            Self::Right => Self::Left,
+            Self::Up => Self::Down,
+            Self::Down => Self::Up,
+        }
+    }
 }
 
 impl Display for Relative {
@@ -502,6 +514,28 @@ impl From<Cardinal> for Relative {
             Cardinal::East => Self::Right,
             Cardinal::South => Self::Down,
             Cardinal::West => Self::Left,
+        }
+    }
+}
+
+impl From<Relative> for Cardinal {
+    fn from(value: Relative) -> Self {
+        match value {
+            Relative::Up => Self::North,
+            Relative::Right => Self::East,
+            Relative::Down => Self::South,
+            Relative::Left => Self::West,
+        }
+    }
+}
+
+impl From<Relative> for Direction {
+    fn from(value: Relative) -> Self {
+        match value {
+            Relative::Up => Self::North,
+            Relative::Right => Self::East,
+            Relative::Down => Self::South,
+            Relative::Left => Self::West,
         }
     }
 }
