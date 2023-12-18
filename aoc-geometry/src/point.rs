@@ -9,7 +9,7 @@ use std::{
     cmp::Ordering,
     hash::Hash,
     iter::Sum,
-    ops::{Add, Deref},
+    ops::{Add, Deref, Sub},
 };
 
 use aoc_directions::{
@@ -35,7 +35,7 @@ pub trait AocPoint {
 /// assert_eq!(p.x, 0_i64);
 /// assert_eq!(p.y, 0_i64);
 /// ```
-#[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Copy, Default, Eq, PartialEq, PartialOrd, Ord, Hash)]
 pub struct Point2D<T>
 where
     T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
@@ -98,6 +98,20 @@ where
         Self {
             x: self.x + rhs.x,
             y: self.y + rhs.y,
+        }
+    }
+}
+
+impl<T> Sub<Point2D<T>> for Point2D<T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    type Output = Point2D<T>;
+
+    fn sub(self, rhs: Point2D<T>) -> Self::Output {
+        Self {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
         }
     }
 }
@@ -402,7 +416,7 @@ impl_bounded_neighbors_iter! {
 /// assert_eq!(p.y, 0_i64);
 /// assert_eq!(p.z, 0_i64);
 /// ```
-#[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Copy, Default, Eq, PartialEq, PartialOrd, Ord, Hash)]
 pub struct Point3D<T>
 where
     T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
@@ -455,6 +469,21 @@ where
     }
 }
 
+impl<T> Sub<Point3D<T>> for Point3D<T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    type Output = Point3D<T>;
+
+    fn sub(self, rhs: Point3D<T>) -> Self::Output {
+        Self {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+            z: self.z - rhs.z,
+        }
+    }
+}
+
 impl<T> Sum for Point3D<T>
 where
     T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
@@ -491,7 +520,7 @@ where
 /// // and some special tuple cases
 /// let p3 = PointND::from((1_u64, 2, 3, 4, 5));
 /// ```
-#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq, PartialOrd, Ord, Hash)]
 pub struct PointND<const N: usize, T>(pub [T; N])
 where
     T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash;
@@ -550,6 +579,45 @@ where
     }
 }
 
+impl<const N: usize, T> Add<PointND<N, T>> for PointND<N, T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    type Output = PointND<N, T>;
+
+    fn add(self, rhs: PointND<N, T>) -> Self::Output {
+        let mut out = Self::default();
+        for i in 0..N {
+            out.0[i] = self.0[i] + rhs.0[i];
+        }
+        out
+    }
+}
+
+impl<const N: usize, T> Sub<PointND<N, T>> for PointND<N, T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    type Output = PointND<N, T>;
+
+    fn sub(self, rhs: PointND<N, T>) -> Self::Output {
+        let mut out = Self::default();
+        for i in 0..N {
+            out.0[i] = self.0[i] - rhs.0[i];
+        }
+        out
+    }
+}
+
+impl<const N: usize, T> Sum for PointND<N, T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
+        iter.reduce(Self::add).unwrap_or_default()
+    }
+}
+
 // special cases
 impl<T> From<(T, T, T, T)> for PointND<4, T>
 where
@@ -591,7 +659,7 @@ const LOC_NEIGHBOR_OFFSETS: [(Direction, i64, i64); 8] = [
 ///
 /// Locations also differ in that "north" is decreasing row values and "south"
 /// is increasing row values.
-#[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Copy, Default, Eq, PartialEq, PartialOrd, Ord, Hash)]
 pub struct Location {
     pub row: usize,
     pub col: usize,
