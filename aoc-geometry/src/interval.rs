@@ -45,6 +45,19 @@ where
         }
     }
 
+    /// Get the width of this interval (end - start + 1).
+    ///
+    /// # Examples
+    /// ```
+    /// use aoc_geometry::Interval;
+    ///
+    /// let i = Interval::new(5_i64, 27);
+    /// assert_eq!(i.width(), 23);
+    /// ```
+    pub fn width(&self) -> T {
+        self.end - self.start + T::one()
+    }
+
     /// Returns true if `self` contains the `value`.
     pub fn contains_value(&self, value: T) -> bool {
         self.start <= value && value <= self.end
