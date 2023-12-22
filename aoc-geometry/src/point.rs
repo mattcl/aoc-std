@@ -9,7 +9,7 @@ use std::{
     cmp::Ordering,
     hash::Hash,
     iter::Sum,
-    ops::{Add, Deref, Sub},
+    ops::{Add, AddAssign, Deref, Sub, SubAssign},
 };
 
 use aoc_directions::{
@@ -102,6 +102,68 @@ where
     }
 }
 
+impl<T> Add<Point2D<T>> for &Point2D<T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    type Output = Point2D<T>;
+
+    fn add(self, rhs: Point2D<T>) -> Self::Output {
+        Self::Output {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+        }
+    }
+}
+
+impl<T> Add<&Point2D<T>> for &Point2D<T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    type Output = Point2D<T>;
+
+    fn add(self, rhs: &Point2D<T>) -> Self::Output {
+        Self::Output {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+        }
+    }
+}
+
+impl<T> Add<&Point2D<T>> for Point2D<T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    type Output = Point2D<T>;
+
+    fn add(self, rhs: &Point2D<T>) -> Self::Output {
+        Self::Output {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+        }
+    }
+}
+
+impl<T> AddAssign<Point2D<T>> for Point2D<T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    fn add_assign(&mut self, rhs: Point2D<T>) {
+        self.x = self.x + rhs.x;
+        self.y = self.y + rhs.y;
+    }
+}
+
+impl<T> AddAssign<&Point2D<T>> for Point2D<T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    fn add_assign(&mut self, rhs: &Point2D<T>) {
+        self.x = self.x + rhs.x;
+        self.y = self.y + rhs.y;
+    }
+}
+
 impl<T> Sub<Point2D<T>> for Point2D<T>
 where
     T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
@@ -109,10 +171,72 @@ where
     type Output = Point2D<T>;
 
     fn sub(self, rhs: Point2D<T>) -> Self::Output {
-        Self {
+        Self::Output {
             x: self.x - rhs.x,
             y: self.y - rhs.y,
         }
+    }
+}
+
+impl<T> Sub<Point2D<T>> for &Point2D<T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    type Output = Point2D<T>;
+
+    fn sub(self, rhs: Point2D<T>) -> Self::Output {
+        Self::Output {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+        }
+    }
+}
+
+impl<T> Sub<&Point2D<T>> for &Point2D<T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    type Output = Point2D<T>;
+
+    fn sub(self, rhs: &Point2D<T>) -> Self::Output {
+        Self::Output {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+        }
+    }
+}
+
+impl<T> Sub<&Point2D<T>> for Point2D<T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    type Output = Point2D<T>;
+
+    fn sub(self, rhs: &Point2D<T>) -> Self::Output {
+        Self::Output {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+        }
+    }
+}
+
+impl<T> SubAssign<Point2D<T>> for Point2D<T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    fn sub_assign(&mut self, rhs: Point2D<T>) {
+        self.x = self.x - rhs.x;
+        self.y = self.y - rhs.y;
+    }
+}
+
+impl<T> SubAssign<&Point2D<T>> for Point2D<T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    fn sub_assign(&mut self, rhs: &Point2D<T>) {
+        self.x = self.x - rhs.x;
+        self.y = self.y - rhs.y;
     }
 }
 
@@ -555,6 +679,73 @@ where
     }
 }
 
+impl<T> Add<Point3D<T>> for &Point3D<T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    type Output = Point3D<T>;
+
+    fn add(self, rhs: Point3D<T>) -> Self::Output {
+        Self::Output {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+            z: self.z + rhs.z,
+        }
+    }
+}
+
+impl<T> Add<&Point3D<T>> for Point3D<T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    type Output = Point3D<T>;
+
+    fn add(self, rhs: &Point3D<T>) -> Self::Output {
+        Self {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+            z: self.z + rhs.z,
+        }
+    }
+}
+
+impl<T> Add<&Point3D<T>> for &Point3D<T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    type Output = Point3D<T>;
+
+    fn add(self, rhs: &Point3D<T>) -> Self::Output {
+        Self::Output {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+            z: self.z + rhs.z,
+        }
+    }
+}
+
+impl<T> AddAssign<Point3D<T>> for Point3D<T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    fn add_assign(&mut self, rhs: Point3D<T>) {
+        self.x = self.x + rhs.x;
+        self.y = self.y + rhs.y;
+        self.z = self.z + rhs.z;
+    }
+}
+
+impl<T> AddAssign<&Point3D<T>> for Point3D<T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    fn add_assign(&mut self, rhs: &Point3D<T>) {
+        self.x = self.x + rhs.x;
+        self.y = self.y + rhs.y;
+        self.z = self.z + rhs.z;
+    }
+}
+
 impl<T> Sub<Point3D<T>> for Point3D<T>
 where
     T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
@@ -562,11 +753,78 @@ where
     type Output = Point3D<T>;
 
     fn sub(self, rhs: Point3D<T>) -> Self::Output {
-        Self {
+        Self::Output {
             x: self.x - rhs.x,
             y: self.y - rhs.y,
             z: self.z - rhs.z,
         }
+    }
+}
+
+impl<T> Sub<Point3D<T>> for &Point3D<T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    type Output = Point3D<T>;
+
+    fn sub(self, rhs: Point3D<T>) -> Self::Output {
+        Self::Output {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+            z: self.z - rhs.z,
+        }
+    }
+}
+
+impl<T> Sub<&Point3D<T>> for &Point3D<T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    type Output = Point3D<T>;
+
+    fn sub(self, rhs: &Point3D<T>) -> Self::Output {
+        Self::Output {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+            z: self.z - rhs.z,
+        }
+    }
+}
+
+impl<T> Sub<&Point3D<T>> for Point3D<T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    type Output = Point3D<T>;
+
+    fn sub(self, rhs: &Point3D<T>) -> Self::Output {
+        Self::Output {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+            z: self.z - rhs.z,
+        }
+    }
+}
+
+impl<T> SubAssign<Point3D<T>> for Point3D<T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    fn sub_assign(&mut self, rhs: Point3D<T>) {
+        self.x = self.x - rhs.x;
+        self.y = self.y - rhs.y;
+        self.z = self.z - rhs.z;
+    }
+}
+
+impl<T> SubAssign<&Point3D<T>> for Point3D<T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    fn sub_assign(&mut self, rhs: &Point3D<T>) {
+        self.x = self.x - rhs.x;
+        self.y = self.y - rhs.y;
+        self.z = self.z - rhs.z;
     }
 }
 

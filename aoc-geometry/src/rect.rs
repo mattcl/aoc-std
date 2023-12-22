@@ -11,7 +11,7 @@ use crate::{Intersect, Point2D};
 ///
 /// The internal representation is guaranteed to be normalized such that
 /// `p1.x < p2.x` and `p1.y < p2.y`.
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Rectangle<T>
 where
     T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
@@ -24,6 +24,12 @@ impl<T> Rectangle<T>
 where
     T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
 {
+    /// Create a rectangle from the specified points, which should represent
+    /// opposite corners.
+    pub fn new(p1: Point2D<T>, p2: Point2D<T>) -> Self {
+        (p1, p2).into()
+    }
+
     /// Create a rectangle from x and y values instead of from points.
     ///
     /// The rectangle will be normalized.
@@ -163,6 +169,20 @@ where
 
         Some(Self::from_raw(begin_x, begin_y, end_x, end_y))
     }
+
+    fn intersects(&self, other: &Self) -> bool {
+        let begin_x = self.p1.x.max(other.p1.x);
+        let end_x = self.p2.x.min(other.p2.x);
+
+        if begin_x > end_x {
+            return false;
+        }
+
+        let begin_y = self.p1.y.max(other.p1.y);
+        let end_y = self.p2.y.min(other.p2.y);
+
+        begin_y <= end_y
+    }
 }
 
 impl<T> Intersect<Point2D<T>> for Rectangle<T>
@@ -181,5 +201,9 @@ where
         } else {
             None
         }
+    }
+
+    fn intersects(&self, other: &Point2D<T>) -> bool {
+        self.p1.x <= other.x && self.p2.x >= other.x && self.p1.y <= other.y && self.p2.y >= other.y
     }
 }

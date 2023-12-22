@@ -2,6 +2,7 @@
 //!
 //! These primarily include points and bounds.
 pub mod bound;
+pub mod cube;
 pub mod intersect;
 pub mod interval;
 pub mod pascals_triangle;
@@ -11,6 +12,7 @@ pub mod rect;
 
 // re-exports
 pub use bound::{AocBound, Bound2D, Bound3D, BoundND};
+pub use cube::Cube;
 pub use intersect::Intersect;
 pub use interval::{Interval, IntervalPartition};
 pub use pascals_triangle::PascalsTriangle;
