@@ -388,6 +388,90 @@ macro_rules! impl_bounded_neighbors_iter {
     };
 }
 
+macro_rules! impl_project {
+    ($($x:ty),+ $(,)?) => {
+        $(
+            impl Point2D<$x> {
+                /// Projects self along `dir` by `distance`.
+                ///
+                /// `distance` can be thought of as the number of steps, so in
+                /// the case of the ordinal directions, the actual distance from
+                /// the new point to self would be longer because it's a
+                /// diagonal, but the number of "steps" shifted is the same.
+                pub fn project(&self, dir: &Direction, distance: $x) -> Self {
+                    match dir {
+                        Direction::North => Self::new(self.x, self.y + distance),
+                        Direction::NorthEast => Self::new(self.x + distance, self.y + distance),
+                        Direction::East => Self::new(self.x + distance, self.y),
+                        Direction::SouthEast => Self::new(self.x + distance, self.y - distance),
+                        Direction::South => Self::new(self.x, self.y - distance),
+                        Direction::SouthWest => Self::new(self.x - distance, self.y - distance),
+                        Direction::West => Self::new(self.x - distance, self.y),
+                        Direction::NorthWest => Self::new(self.x - distance, self.y + distance),
+                    }
+                }
+            }
+        )*
+    };
+}
+
+macro_rules! impl_bounded_project {
+    ($($x:ty),+ $(,)?) => {
+        $(
+            impl Point2D<$x> {
+                /// Projects self along `dir` by `distance`.
+                ///
+                /// `distance` can be thought of as the number of steps, so in
+                /// the case of the ordinal directions, the actual distance from
+                /// the new point to self would be longer because it's a
+                /// diagonal, but the number of "steps" shifted is the same.
+                pub fn project(&self, dir: &Direction, distance: $x) -> Option<Self> {
+                    match dir {
+                        Direction::North => Some(Self::new(self.x, self.y + distance)),
+                        Direction::NorthEast => Some(Self::new(self.x + distance, self.y + distance)),
+                        Direction::East => Some(Self::new(self.x + distance, self.y)),
+                        Direction::SouthEast => {
+                            if self.y >= distance {
+                                Some(Self::new(self.x + distance, self.y - distance))
+                            } else {
+                                None
+                            }
+                        },
+                        Direction::South => {
+                            if self.y >= distance {
+                                Some(Self::new(self.x, self.y - distance))
+                            } else {
+                                None
+                            }
+                        },
+                        Direction::SouthWest => {
+                            if self.x >= distance && self.y >= distance {
+                                Some(Self::new(self.x - distance, self.y - distance))
+                            } else {
+                                None
+                            }
+                        },
+                        Direction::West => {
+                            if self.x >= distance {
+                                Some(Self::new(self.x - distance, self.y))
+                            } else {
+                                None
+                            }
+                        },
+                        Direction::NorthWest => {
+                            if self.x >= distance {
+                                Some(Self::new(self.x - distance, self.y + distance))
+                            } else {
+                                None
+                            }
+                        }
+                    }
+                }
+            }
+        )*
+    };
+}
+
 // we handle these specifically instead of trying to use some type constraint
 // magic to have generic impls for the ones we want. Part of the limitation
 // for the neighbors iterators is not being able to specify the `impl Iterator`
@@ -405,6 +489,8 @@ impl_bounded_neighbors_iter! {
     (u128, i128),
     (usize, isize),
 }
+impl_project!(i8, i16, i32, i64, i128, isize);
+impl_bounded_project!(u8, u16, u32, u64, u128, usize);
 
 /// A point representing something like (x, y, z).
 ///
@@ -734,6 +820,55 @@ impl Location {
             (Ordering::Greater, Ordering::Less) => Some(Direction::NorthEast),
             (Ordering::Greater, Ordering::Equal) => Some(Direction::East),
             (Ordering::Greater, Ordering::Greater) => Some(Direction::SouthEast),
+        }
+    }
+
+    /// Projects self along `dir` by `distance`.
+    ///
+    /// `distance` can be thought of as the number of steps, so in
+    /// the case of the ordinal directions, the actual distance from
+    /// the new point to self would be longer because it's a
+    /// diagonal, but the number of "steps" shifted is the same.
+    pub fn project(&self, dir: &Direction, distance: usize) -> Option<Self> {
+        match dir {
+            Direction::North => {
+                if self.row >= distance {
+                    Some(Self::new(self.row - distance, self.col))
+                } else {
+                    None
+                }
+            }
+            Direction::NorthEast => {
+                if self.row >= distance {
+                    Some(Self::new(self.row - distance, self.col + distance))
+                } else {
+                    None
+                }
+            }
+            Direction::East => Some(Self::new(self.row, self.col + distance)),
+            Direction::SouthEast => Some(Self::new(self.row + distance, self.col + distance)),
+            Direction::South => Some(Self::new(self.row + distance, self.col)),
+            Direction::SouthWest => {
+                if self.col >= distance {
+                    Some(Self::new(self.row + distance, self.col - distance))
+                } else {
+                    None
+                }
+            }
+            Direction::West => {
+                if self.col >= distance {
+                    Some(Self::new(self.row, self.col - distance))
+                } else {
+                    None
+                }
+            }
+            Direction::NorthWest => {
+                if self.row >= distance && self.col >= distance {
+                    Some(Self::new(self.row - distance, self.col - distance))
+                } else {
+                    None
+                }
+            }
         }
     }
 }
@@ -1295,6 +1430,36 @@ mod tests {
                 p.relative_direction_from(&Location::new(2, 2)),
                 Some(Direction::NorthWest)
             );
+        }
+
+        #[test]
+        fn projecting() {
+            let p = Location::new(2, 2);
+            assert_eq!(p.project(&Direction::North, 2), Some(Location::new(0, 2)));
+            assert_eq!(p.project(&Direction::North, 3), None,);
+            assert_eq!(
+                p.project(&Direction::NorthEast, 2),
+                Some(Location::new(0, 4))
+            );
+            assert_eq!(p.project(&Direction::NorthEast, 3), None,);
+            assert_eq!(p.project(&Direction::East, 2), Some(Location::new(2, 4)));
+            assert_eq!(
+                p.project(&Direction::SouthEast, 2),
+                Some(Location::new(4, 4))
+            );
+            assert_eq!(p.project(&Direction::South, 2), Some(Location::new(4, 2)));
+            assert_eq!(
+                p.project(&Direction::SouthWest, 2),
+                Some(Location::new(4, 0))
+            );
+            assert_eq!(p.project(&Direction::SouthWest, 3), None,);
+            assert_eq!(p.project(&Direction::West, 2), Some(Location::new(2, 0)));
+            assert_eq!(p.project(&Direction::West, 3), None,);
+            assert_eq!(
+                p.project(&Direction::NorthWest, 2),
+                Some(Location::new(0, 0))
+            );
+            assert_eq!(p.project(&Direction::NorthWest, 3), None,);
         }
     }
 }
