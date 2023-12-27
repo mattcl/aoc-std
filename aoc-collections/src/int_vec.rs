@@ -34,6 +34,7 @@ pub enum IntVecError {
 /// assert_eq!(*v, vec![100_i64, 200, 300, -100, 50]);
 ///
 /// ```
+#[derive(Debug, Default, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct IntVec(Vec<i64>);
 
 impl Deref for IntVec {
