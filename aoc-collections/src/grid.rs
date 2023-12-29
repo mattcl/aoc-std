@@ -27,7 +27,7 @@ impl<T> Grid<T> {
     /// Make a new grid from given data.
     pub fn new(locations: Vec<Vec<T>>) -> Self {
         let height = locations.len();
-        let width = locations.get(0).map(|r| r.len()).unwrap_or_default();
+        let width = locations.first().map(|r| r.len()).unwrap_or_default();
 
         Self {
             locations,
