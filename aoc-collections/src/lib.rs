@@ -12,10 +12,12 @@ pub type FxIndexMap<K, V> = IndexMap<K, V, BuildHasherDefault<FxHasher>>;
 pub type FxIndexSet<K> = IndexSet<K, BuildHasherDefault<FxHasher>>;
 
 // Our stuff
+pub mod bucket_queue;
 pub mod char_set;
 pub mod grid;
 pub mod int_vec;
 
+pub use bucket_queue::{BucketQueue, DefaultBucketQueue};
 pub use char_set::CharSet;
 pub use grid::{CharGrid, DigitGrid, Grid};
 pub use int_vec::{IntVec, IntVecError};

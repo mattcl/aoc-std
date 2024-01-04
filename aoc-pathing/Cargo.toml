@@ -1,6 +1,6 @@
 [package]
 name = "aoc-pathing"
-version = "0.1.8"
+version = "0.1.9"
 authors.workspace = true
 edition.workspace = true
 publish.workspace = true
@@ -9,7 +9,7 @@ rust-version.workspace = true
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-aoc-collections = { path = "../aoc-collections", version = "0.3.3", registry = "ancalagon" }
+aoc-collections = { path = "../aoc-collections", version = "0.3.5", registry = "ancalagon" }
 num = { workspace = true }
 rustc-hash = { workspace = true }
 thiserror = { workspace = true }

@@ -7,7 +7,7 @@ use std::{collections::BinaryHeap, fmt::Debug, hash::Hash};
 
 use aoc_collections::{
     indexmap::map::Entry::{Occupied, Vacant},
-    FxIndexMap,
+    DefaultBucketQueue, FxIndexMap,
 };
 use num::{Bounded, Num};
 use thiserror::Error;
@@ -214,5 +214,90 @@ where
 {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         Some(self.cmp(other))
+    }
+}
+
+/// Find the shortest path using Dijkstra backed by a BucketQueue.
+///
+/// Costs must be usize and should cover a relatively small range.
+///
+/// This runs until `stop` returns `true` or it has exhausted the search space,
+/// at which point it returns a [DijkstraResult] which exposes information about
+/// the shortest path, if one existed.
+///
+/// * `start` is the node representing the start position
+/// * `edges` returns a list of edges (neighbors) for a given node paired with
+///   the costs of moving to each neighbor.
+/// * `stop` is given the current node and returns `true` if we should stop
+///    searching (we've found the desired end point).
+pub fn bucket_dijkstra<N, E, I, S>(
+    start: &N,
+    edges: &mut E,
+    stop: &mut S,
+) -> DijkstraResult<N, usize>
+where
+    N: Clone + Eq + Hash,
+    E: FnMut(&N) -> I,
+    I: IntoIterator<Item = (N, usize)>,
+    S: FnMut(&N) -> bool,
+{
+    let mut heap = DefaultBucketQueue::default();
+    let mut cache: FxIndexMap<N, (usize, usize)> = FxIndexMap::default();
+
+    heap.push(0, 0);
+
+    cache.insert(start.clone(), (usize::MAX, 0));
+
+    let mut goal = None;
+    while let Some((cost, index)) = heap.pop() {
+        let edges = {
+            // we can unwrap because we _know_ these exist
+            let (node, &(_, c)) = cache.get_index(index).unwrap();
+
+            if stop(node) {
+                goal = Some((index, cost));
+                break;
+            }
+
+            if cost > c {
+                continue;
+            }
+
+            edges(node)
+        };
+
+        for (edge, move_cost) in edges {
+            let new_cost = cost + move_cost;
+            let next_index = match cache.entry(edge) {
+                Vacant(e) => {
+                    let n = e.index();
+                    e.insert((index, new_cost));
+                    n
+                }
+                Occupied(mut e) => {
+                    if e.get().1 > new_cost {
+                        let n = e.index();
+                        e.insert((index, new_cost));
+                        n
+                    } else {
+                        continue;
+                    }
+                }
+            };
+
+            heap.push(new_cost, next_index);
+        }
+    }
+
+    if let Some((index, cost)) = goal {
+        DijkstraResult::Success {
+            goal_index: index,
+            cost,
+            examined_nodes: cache,
+        }
+    } else {
+        DijkstraResult::NoPath {
+            examined_nodes: cache,
+        }
     }
 }
