@@ -9,7 +9,7 @@ use std::{
     cmp::Ordering,
     hash::Hash,
     iter::Sum,
-    ops::{Add, AddAssign, Deref, Sub, SubAssign},
+    ops::{Add, AddAssign, Deref, DerefMut, Sub, SubAssign},
 };
 
 use aoc_directions::{
@@ -896,6 +896,15 @@ where
 
     fn deref(&self) -> &Self::Target {
         &self.0
+    }
+}
+
+impl<const N: usize, T> DerefMut for PointND<N, T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
     }
 }
 

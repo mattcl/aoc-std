@@ -35,6 +35,9 @@ pub trait AocBound {
 
     /// Checks if the given Point is contained (inclusive) by the bounds.
     fn contains(&self, point: &Self::PointKind) -> bool;
+
+    /// normalize the given point relative to the min corner of the bound.
+    fn normalize(&self, point: &Self::PointKind) -> Option<Self::PointKind>;
 }
 
 /// A two-dimensional boundary.
@@ -107,6 +110,17 @@ where
             && self.max_x >= point.x
             && self.min_y <= point.y
             && self.max_y >= point.y
+    }
+
+    fn normalize(&self, point: &Self::PointKind) -> Option<Self::PointKind> {
+        if self.contains(point) {
+            Some(Point2D {
+                x: point.x - self.min_x,
+                y: point.y - self.min_y,
+            })
+        } else {
+            None
+        }
     }
 }
 
@@ -224,6 +238,18 @@ where
             && self.max_y >= point.y
             && self.min_z <= point.z
             && self.max_z >= point.z
+    }
+
+    fn normalize(&self, point: &Self::PointKind) -> Option<Self::PointKind> {
+        if self.contains(point) {
+            Some(Point3D {
+                x: point.x - self.min_x,
+                y: point.y - self.min_y,
+                z: point.z - self.min_z,
+            })
+        } else {
+            None
+        }
     }
 }
 
@@ -344,6 +370,20 @@ where
             .iter()
             .enumerate()
             .all(|(idx, [min, max])| *min <= point[idx] && *max >= point[idx])
+    }
+
+    fn normalize(&self, point: &Self::PointKind) -> Option<Self::PointKind> {
+        if self.contains(point) {
+            let mut new_point = PointND::<N, T>::default();
+
+            for i in 0..N {
+                new_point[i] = point[i] - self.dimensions[i][0];
+            }
+
+            Some(new_point)
+        } else {
+            None
+        }
     }
 }
 

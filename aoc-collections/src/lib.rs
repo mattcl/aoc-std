@@ -16,6 +16,7 @@ pub mod bucket_queue;
 pub mod char_set;
 pub mod grid;
 pub mod int_vec;
+pub mod point_grid;
 
 pub use bucket_queue::{BucketQueue, DefaultBucketQueue};
 pub use char_set::CharSet;

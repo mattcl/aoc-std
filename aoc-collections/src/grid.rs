@@ -13,7 +13,7 @@ pub enum GridError {
     InconsistentWidth,
 }
 
-/// A grid a two-dimensional collection of `T`, optionally indexed by [Location].
+/// A grid is a two-dimensional collection of `T`, optionally indexed by [Location].
 ///
 /// Under the hood, it's a vector of `[rows][cols]`.
 #[derive(Debug, Clone, Default, Eq, PartialEq)]
