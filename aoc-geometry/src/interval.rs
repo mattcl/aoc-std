@@ -380,6 +380,22 @@ where
             end: self.end + distance,
         }
     }
+
+    /// Split `self` using `value_inclusive`.
+    ///
+    /// If a split occurs, the left interval will contain `value_inclusive`.
+    pub fn split_at(&self, value_inclusive: T) -> IntervalSplit<T> {
+        if self.end < value_inclusive {
+            IntervalSplit::Left { value: *self }
+        } else if self.start > value_inclusive {
+            IntervalSplit::Right { value: *self }
+        } else {
+            IntervalSplit::Bisecting {
+                left: Self::new(self.start, value_inclusive),
+                right: Self::new(value_inclusive + T::one(), self.end),
+            }
+        }
+    }
 }
 
 impl<T> Intersect for Interval<T>
@@ -452,6 +468,26 @@ where
     Bisecting {
         left: Interval<T>,
         overlap: Interval<T>,
+        right: Interval<T>,
+    },
+}
+
+/// A representaiton of the result of splitting an [Interval].
+///
+/// See [Interval::split_at] for more information.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum IntervalSplit<T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    Left {
+        value: Interval<T>,
+    },
+    Right {
+        value: Interval<T>,
+    },
+    Bisecting {
+        left: Interval<T>,
         right: Interval<T>,
     },
 }
