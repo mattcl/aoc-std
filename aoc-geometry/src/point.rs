@@ -16,7 +16,7 @@ use aoc_directions::{
     BoundedCardinalNeighbors, BoundedOrdinalNeighbors, Cardinal, CardinalNeighbors, Direction,
     OrdinalNeighbors,
 };
-use num::{Bounded, Num};
+use num::{Bounded, Num, Signed};
 
 /// A colleciton of basic things that all "points" provide.
 pub trait AocPoint {
@@ -76,6 +76,43 @@ where
             (Ordering::Greater, Ordering::Equal) => Some(Direction::East),
             (Ordering::Greater, Ordering::Greater) => Some(Direction::NorthEast),
         }
+    }
+}
+
+impl<T> Point2D<T>
+where
+    T: Num + Bounded + Signed + Ord + PartialOrd + Copy + Default + Hash,
+{
+    /// Return the reflection of this point across the x-axis.
+    ///
+    /// This would be equal to a point with the sign of the `y` value flipped.
+    ///
+    /// # Examples
+    /// ```
+    /// use aoc_geometry::Point2D;
+    ///
+    /// let p = Point2D::new(2_i64, 3_i64);
+    ///
+    /// assert_eq!(p.reflect_x(), Point2D::new(2, -3));
+    /// ```
+    pub fn reflect_x(&self) -> Self {
+        Self::new(self.x, -self.y)
+    }
+
+    /// Return the reflection of this point across the y-axis.
+    ///
+    /// This would be equal to a point with the sign of the `x` value flipped.
+    ///
+    /// # Examples
+    /// ```
+    /// use aoc_geometry::Point2D;
+    ///
+    /// let p = Point2D::new(2_i64, 3_i64);
+    ///
+    /// assert_eq!(p.reflect_y(), Point2D::new(-2, 3));
+    /// ```
+    pub fn reflect_y(&self) -> Self {
+        Self::new(-self.x, self.y)
     }
 }
 
