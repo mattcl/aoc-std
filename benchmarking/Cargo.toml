@@ -16,7 +16,7 @@ name = "int_vec"
 harness = false
 
 [dependencies]
-aoc-std = { path = "../aoc-std", version = "0.3.4", registry = "ancalagon" }
+aoc-std = { path = "../aoc-std", version = "0.4", registry = "ancalagon" }
 
 [dev-dependencies]
 divan = "0.1.16"

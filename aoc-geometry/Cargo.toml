@@ -1,6 +1,6 @@
 [package]
 name = "aoc-geometry"
-version = "0.4.9"
+version = "0.5.0"
 authors.workspace = true
 edition.workspace = true
 publish.workspace = true
@@ -9,7 +9,7 @@ rust-version.workspace = true
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-aoc-directions = { path = "../aoc-directions", version = "0.1", registry = "ancalagon" }
+aoc-directions = { path = "../aoc-directions", version = "0.2", registry = "ancalagon" }
 num = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
