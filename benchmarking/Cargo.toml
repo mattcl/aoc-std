@@ -19,6 +19,6 @@ harness = false
 aoc-std = { path = "../aoc-std", version = "0.3.4", registry = "ancalagon" }
 
 [dev-dependencies]
-divan = "0.1.2"
+divan = "0.1.16"
 rand = "0.8.5"
 rustc-hash = "1.1.0"
