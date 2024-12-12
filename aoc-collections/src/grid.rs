@@ -124,6 +124,19 @@ impl<T> Grid<T> {
             .filter_map(|(dir, n)| self.get(&n).map(|v| (dir, n, v)))
     }
 
+    /// Get the specified neighbor and its value from the grid, if it exists.
+    ///
+    /// For convenience, this yields tuples of ([Direction], `&T`)
+    pub fn neighbor(
+        &self,
+        location: &Location,
+        direction: Direction,
+    ) -> Option<(Location, &T)> {
+        location
+            .neighbor(direction)
+            .and_then(|neighbor| self.get(&neighbor).map(|v| (neighbor, v)))
+    }
+
     /// Get the specified cardinal_neighbor and its value from the grid, if it
     /// exists.
     ///

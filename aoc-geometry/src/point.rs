@@ -1110,6 +1110,11 @@ impl Location {
             })
     }
 
+    /// Returns the immediate neighbor in the specified direction, if it exists.
+    pub fn neighbor(&self, direction: Direction) -> Option<Self> {
+        self.project(&direction, 1)
+    }
+
     /// Calculate the relative direction that `self` is from `other`.
     ///
     /// Returns [None] if `self == other`.

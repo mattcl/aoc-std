@@ -62,7 +62,6 @@ impl CharSet {
     /// assert!(!s1.is_empty());
     /// assert!(s2.is_empty());
     /// ```
-
     pub fn is_empty(&self) -> bool {
         self.0 == 0
     }
