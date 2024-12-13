@@ -9,7 +9,7 @@ use std::{
     cmp::Ordering,
     hash::Hash,
     iter::Sum,
-    ops::{Add, AddAssign, Deref, DerefMut, Sub, SubAssign},
+    ops::{Add, AddAssign, Deref, DerefMut, Div, DivAssign, Mul, MulAssign, Sub, SubAssign},
 };
 
 use aoc_directions::{
@@ -274,6 +274,158 @@ where
     fn sub_assign(&mut self, rhs: &Point2D<T>) {
         self.x = self.x - rhs.x;
         self.y = self.y - rhs.y;
+    }
+}
+
+impl<T> Mul<Point2D<T>> for Point2D<T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    type Output = Self;
+
+    fn mul(self, rhs: Point2D<T>) -> Self::Output {
+        Self::Output {
+            x: self.x * rhs.x,
+            y: self.y * rhs.y,
+        }
+    }
+}
+
+impl<T> Mul<&Point2D<T>> for Point2D<T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    type Output = Self;
+
+    fn mul(self, rhs: &Point2D<T>) -> Self::Output {
+        Self::Output {
+            x: self.x * rhs.x,
+            y: self.y * rhs.y,
+        }
+    }
+}
+
+impl<T> Mul<&Point2D<T>> for &Point2D<T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    type Output = Point2D<T>;
+
+    fn mul(self, rhs: &Point2D<T>) -> Self::Output {
+        Self::Output {
+            x: self.x * rhs.x,
+            y: self.y * rhs.y,
+        }
+    }
+}
+
+impl<T> Mul<Point2D<T>> for &Point2D<T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    type Output = Point2D<T>;
+
+    fn mul(self, rhs: Point2D<T>) -> Self::Output {
+        Self::Output {
+            x: self.x * rhs.x,
+            y: self.y * rhs.y,
+        }
+    }
+}
+
+impl<T> MulAssign<Point2D<T>> for Point2D<T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    fn mul_assign(&mut self, rhs: Point2D<T>) {
+        self.x = self.x * rhs.x;
+        self.y = self.y * rhs.y;
+    }
+}
+
+impl<T> MulAssign<&Point2D<T>> for Point2D<T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    fn mul_assign(&mut self, rhs: &Point2D<T>) {
+        self.x = self.x * rhs.x;
+        self.y = self.y * rhs.y;
+    }
+}
+
+impl<T> Div<Point2D<T>> for Point2D<T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    type Output = Self;
+
+    fn div(self, rhs: Point2D<T>) -> Self::Output {
+        Self::Output {
+            x: self.x / rhs.x,
+            y: self.y / rhs.y,
+        }
+    }
+}
+
+impl<T> Div<&Point2D<T>> for Point2D<T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    type Output = Self;
+
+    fn div(self, rhs: &Point2D<T>) -> Self::Output {
+        Self::Output {
+            x: self.x / rhs.x,
+            y: self.y / rhs.y,
+        }
+    }
+}
+
+impl<T> Div<&Point2D<T>> for &Point2D<T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    type Output = Point2D<T>;
+
+    fn div(self, rhs: &Point2D<T>) -> Self::Output {
+        Self::Output {
+            x: self.x / rhs.x,
+            y: self.y / rhs.y,
+        }
+    }
+}
+
+impl<T> Div<Point2D<T>> for &Point2D<T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    type Output = Point2D<T>;
+
+    fn div(self, rhs: Point2D<T>) -> Self::Output {
+        Self::Output {
+            x: self.x / rhs.x,
+            y: self.y / rhs.y,
+        }
+    }
+}
+
+impl<T> DivAssign<Point2D<T>> for Point2D<T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    fn div_assign(&mut self, rhs: Point2D<T>) {
+        self.x = self.x / rhs.x;
+        self.y = self.y / rhs.y;
+    }
+}
+
+impl<T> DivAssign<&Point2D<T>> for Point2D<T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    fn div_assign(&mut self, rhs: &Point2D<T>) {
+        self.x = self.x / rhs.x;
+        self.y = self.y / rhs.y;
     }
 }
 
