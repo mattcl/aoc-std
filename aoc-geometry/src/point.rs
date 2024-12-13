@@ -195,6 +195,20 @@ where
     }
 }
 
+impl<T> Add<T> for &Point2D<T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    type Output = Point2D<T>;
+
+    fn add(self, rhs: T) -> Self::Output {
+        Self::Output {
+            x: self.x + rhs,
+            y: self.y + rhs,
+        }
+    }
+}
+
 impl<T> AddAssign<Point2D<T>> for Point2D<T>
 where
     T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
@@ -295,6 +309,20 @@ where
     }
 }
 
+impl<T> Sub<T> for &Point2D<T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    type Output = Point2D<T>;
+
+    fn sub(self, rhs: T) -> Self::Output {
+        Self::Output {
+            x: self.x - rhs,
+            y: self.y - rhs,
+        }
+    }
+}
+
 impl<T> SubAssign<Point2D<T>> for Point2D<T>
 where
     T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
@@ -377,6 +405,20 @@ where
         Self::Output {
             x: self.x * rhs.x,
             y: self.y * rhs.y,
+        }
+    }
+}
+
+impl<T> Mul<T> for Point2D<T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    type Output = Point2D<T>;
+
+    fn mul(self, rhs: T) -> Self::Output {
+        Self::Output {
+            x: self.x * rhs,
+            y: self.y * rhs,
         }
     }
 }
@@ -482,6 +524,20 @@ where
 }
 
 impl<T> Div<T> for &Point2D<T>
+where
+    T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
+{
+    type Output = Point2D<T>;
+
+    fn div(self, rhs: T) -> Self::Output {
+        Self::Output {
+            x: self.x / rhs,
+            y: self.y / rhs,
+        }
+    }
+}
+
+impl<T> Div<T> for Point2D<T>
 where
     T: Num + Bounded + Ord + PartialOrd + Copy + Default + Hash,
 {
