@@ -127,11 +127,7 @@ impl<T> Grid<T> {
     /// Get the specified neighbor and its value from the grid, if it exists.
     ///
     /// For convenience, this yields tuples of ([Direction], `&T`)
-    pub fn neighbor(
-        &self,
-        location: &Location,
-        direction: Direction,
-    ) -> Option<(Location, &T)> {
+    pub fn neighbor(&self, location: &Location, direction: Direction) -> Option<(Location, &T)> {
         location
             .neighbor(direction)
             .and_then(|neighbor| self.get(&neighbor).map(|v| (neighbor, v)))
