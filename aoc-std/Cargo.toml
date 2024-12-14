@@ -1,6 +1,6 @@
 [package]
 name = "aoc-std"
-version = "0.4.0"
+version = "0.5.0"
 authors.workspace = true
 edition.workspace = true
 publish.workspace = true
@@ -13,6 +13,7 @@ aoc-collections = { path = "../aoc-collections", version = "0.4", registry = "an
 aoc-conversions = { path = "../aoc-conversions", version = "0.2", registry = "ancalagon" }
 aoc-directions = { path = "../aoc-directions", version = "0.2", registry = "ancalagon" }
 aoc-geometry = { path = "../aoc-geometry", version = "0.5", registry = "ancalagon" }
+aoc-math = { path = "../aoc-math", version = "0.1", registry = "ancalagon" }
 aoc-pathing = { path = "../aoc-pathing", version = "0.2", registry = "ancalagon" }
 aoc-types = { path = "../aoc-types", version = "0.2", registry = "ancalagon" }
 aoc-vm = { path = "../aoc-vm", version = "0.2", registry = "ancalagon" }

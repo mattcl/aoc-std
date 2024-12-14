@@ -9,6 +9,7 @@ members = [
     "aoc-conversions",
     "aoc-directions",
     "aoc-geometry",
+    "aoc-math",
     "aoc-pathing",
     "aoc-types",
     "aoc-vm",
