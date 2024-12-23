@@ -1,4 +1,6 @@
-use std::ops::{BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign};
+use std::{ops::{BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign}, usize};
+
+const MASK: usize = (1 << 6) - 1;
 
 // presumably, below this you'd just use u128 and the other primitives
 pub type BitSet192 = BitSet<3>;
@@ -15,21 +17,29 @@ pub struct BitSet<const N: usize> {
 }
 
 impl<const N: usize> BitSet<N> {
+    pub fn zero() -> Self {
+        Self { bits: [0; N] }
+    }
+
+    pub fn max() -> Self {
+        Self { bits: [u64::MAX; N] }
+    }
+
     pub fn insert(&mut self, idx: usize) {
-        let bucket = idx / 64;
-        let shift = idx % 64;
+        let bucket = idx >> 6;
+        let shift = idx & MASK;
         self.bits[bucket] |= 1 << shift
     }
 
     pub fn remove(&mut self, idx: usize) {
-        let bucket = idx / 64;
-        let shift = idx % 64;
+        let bucket = idx >> 6;
+        let shift = idx & MASK;
         self.bits[bucket] &= !(1 << shift);
     }
 
     pub fn contains(&self, idx: usize) -> bool {
-        let bucket = idx / 64;
-        let shift = idx % 64;
+        let bucket = idx >> 6;
+        let shift = idx & MASK;
         (self.bits[bucket] & 1 << shift) != 0
     }
 
@@ -37,12 +47,30 @@ impl<const N: usize> BitSet<N> {
         self.bits.iter().map(|bucket| bucket.count_ones()).sum()
     }
 
-    pub fn zero() -> Self {
-        Self { bits: [0; N] }
+    pub fn next_beyond(&self, idx: usize) -> Option<usize> {
+        let mut bucket = idx >> 6;
+        let shift = (idx & MASK) + 1;
+
+        if bucket < N && shift < 64 {
+            let v = (self.bits[bucket] >> shift).trailing_zeros();
+            if v != 64 {
+                return Some(bucket * 64 + shift + v as usize);
+            }
+        }
+        bucket += 1;
+
+        while bucket < N {
+            if self.bits[bucket] > 0 {
+                return Some(bucket * 64 + self.bits[bucket].trailing_zeros() as usize);
+            }
+            bucket += 1;
+        }
+
+        None
     }
 
-    pub fn max() -> Self {
-        Self { bits: [u64::MAX; N] }
+    pub fn iter(&self) -> BitSetIter<N> {
+        BitSetIter { set: *self, index: usize::MAX }
     }
 }
 
@@ -265,5 +293,69 @@ impl<const N: usize> BitXorAssign<&BitSet<N>> for BitSet<N> {
         for i in 0..N {
             self.bits[i] ^= rhs.bits[i];
         }
+    }
+}
+
+pub struct BitSetIter<const N: usize> {
+    set: BitSet<N>,
+    index: usize,
+}
+
+impl<const N: usize> Iterator for BitSetIter<N> {
+    type Item = usize;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.index == usize::MAX {
+            self.index = 0;
+            if self.set.contains(0) {
+                return Some(0);
+            }
+        }
+
+        if self.index == N * 64 {
+            return None;
+        }
+
+        if let Some(v) = self.set.next_beyond(self.index) {
+            self.index = v;
+            Some(v)
+        } else {
+            self.index = N * 64;
+            None
+        }
+    }
+}
+
+impl<const N: usize> IntoIterator for BitSet<N> {
+    type Item = usize;
+    type IntoIter = BitSetIter<N>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn bitset_iter() {
+        let mut set = BitSet192::default();
+
+        set.insert(20);
+        set.insert(46);
+        set.insert(100);
+        set.insert(191);
+
+        let mut iter = set.iter();
+
+        assert_eq!(20, iter.next().unwrap());
+        assert_eq!(46, iter.next().unwrap());
+        assert_eq!(100, iter.next().unwrap());
+        assert_eq!(191, iter.next().unwrap());
+        assert_eq!(None, iter.next());
+
+        assert_eq!(vec![20, 46, 100, 191], set.into_iter().collect::<Vec<_>>());
     }
 }
