@@ -1,4 +1,4 @@
-use std::{ops::{BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign}, usize};
+use std::ops::{BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign};
 
 const MASK: usize = (1 << 6) - 1;
 
@@ -25,7 +25,9 @@ impl<const N: usize> BitSet<N> {
     }
 
     pub const fn max() -> Self {
-        Self { bits: [u64::MAX; N] }
+        Self {
+            bits: [u64::MAX; N],
+        }
     }
 
     pub fn insert(&mut self, idx: usize) {
@@ -47,7 +49,10 @@ impl<const N: usize> BitSet<N> {
     }
 
     pub fn count(&self) -> u32 {
-        self.bits.iter().map(|bucket| if *bucket > 0 { bucket.count_ones() } else { 0 }).sum()
+        self.bits
+            .iter()
+            .map(|bucket| if *bucket > 0 { bucket.count_ones() } else { 0 })
+            .sum()
     }
 
     pub fn next_beyond(&self, idx: usize) -> Option<usize> {
@@ -73,7 +78,10 @@ impl<const N: usize> BitSet<N> {
     }
 
     pub fn iter(&self) -> BitSetIter<N> {
-        BitSetIter { set: *self, index: usize::MAX }
+        BitSetIter {
+            set: *self,
+            index: usize::MAX,
+        }
     }
 }
 
