@@ -40,6 +40,10 @@ impl<const N: usize> BitSet<N> {
     pub fn zero() -> Self {
         Self { bits: [0; N] }
     }
+
+    pub fn max() -> Self {
+        Self { bits: [u64::MAX; N] }
+    }
 }
 
 impl<const N: usize> Default for BitSet<N> {
