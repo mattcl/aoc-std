@@ -17,11 +17,14 @@ pub struct BitSet<const N: usize> {
 }
 
 impl<const N: usize> BitSet<N> {
-    pub fn zero() -> Self {
+    pub const ZERO: Self = Self::zero();
+    pub const MAX: Self = Self::max();
+
+    pub const fn zero() -> Self {
         Self { bits: [0; N] }
     }
 
-    pub fn max() -> Self {
+    pub const fn max() -> Self {
         Self { bits: [u64::MAX; N] }
     }
 
@@ -44,7 +47,7 @@ impl<const N: usize> BitSet<N> {
     }
 
     pub fn count(&self) -> u32 {
-        self.bits.iter().map(|bucket| bucket.count_ones()).sum()
+        self.bits.iter().map(|bucket| if *bucket > 0 { bucket.count_ones() } else { 0 }).sum()
     }
 
     pub fn next_beyond(&self, idx: usize) -> Option<usize> {
