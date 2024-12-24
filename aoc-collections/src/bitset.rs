@@ -1,5 +1,7 @@
 use std::ops::{BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign};
 
+use num::PrimInt;
+
 const MASK: usize = (1 << 6) - 1;
 
 // presumably, below this you'd just use u128 and the other primitives
@@ -70,6 +72,28 @@ impl<const N: usize> BitSet<N> {
         while bucket < N {
             if self.bits[bucket] > 0 {
                 return Some(bucket * 64 + self.bits[bucket].trailing_zeros() as usize);
+            }
+            bucket += 1;
+        }
+
+        None
+    }
+
+    pub fn hole_beyond(&self, idx: usize) -> Option<usize> {
+        let mut bucket = idx >> 6;
+        let shift = (idx & MASK) + 1;
+
+        if bucket < N && shift < 64 {
+            let v = (self.bits[bucket] >> shift).trailing_ones();
+            if v != 64 {
+                return Some(bucket * 64 + shift + v as usize);
+            }
+        }
+        bucket += 1;
+
+        while bucket < N {
+            if self.bits[bucket] > 0 {
+                return Some(bucket * 64 + self.bits[bucket].trailing_ones() as usize);
             }
             bucket += 1;
         }
@@ -349,6 +373,22 @@ impl<const N: usize> IntoIterator for BitSet<N> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn hole_beyond() {
+        let mut set = BitSet192::default();
+        set.insert(20);
+        set.insert(22);
+        set.insert(46);
+        set.insert(47);
+        set.insert(49);
+        set.insert(50);
+        set.insert(100);
+        set.insert(191);
+
+        assert_eq!(Some(48), set.hole_beyond(46));
+        assert_eq!(Some(51), set.hole_beyond(50));
+    }
 
     #[test]
     fn bitset_iter() {
