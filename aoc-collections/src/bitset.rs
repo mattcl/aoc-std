@@ -1,7 +1,5 @@
 use std::ops::{BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign};
 
-use num::PrimInt;
-
 const MASK: usize = (1 << 6) - 1;
 
 // presumably, below this you'd just use u128 and the other primitives
