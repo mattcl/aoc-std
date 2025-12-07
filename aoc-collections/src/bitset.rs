@@ -1,4 +1,6 @@
-use std::ops::{BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign};
+use std::ops::{
+    BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign, Shl, ShlAssign, Shr, ShrAssign,
+};
 
 const MASK: usize = (1 << 6) - 1;
 
@@ -28,6 +30,14 @@ impl<const N: usize> BitSet<N> {
         Self {
             bits: [u64::MAX; N],
         }
+    }
+
+    pub const fn from_bits(bits: [u64; N]) -> Self {
+        Self { bits }
+    }
+
+    pub fn set_lower(&mut self, bits: u64) {
+        self.bits[0] = bits;
     }
 
     pub fn insert(&mut self, idx: usize) {
@@ -329,6 +339,115 @@ impl<const N: usize> BitXorAssign<&BitSet<N>> for BitSet<N> {
     }
 }
 
+/// Implement BoundedCardinalNeighbors for the specified types
+macro_rules! impl_shifts {
+    ($($x:ty),+ $(,)?) => {
+        $(
+            impl<const N: usize> Shl<$x> for BitSet<N> {
+                type Output = BitSet<N>;
+
+                fn shl(self, rhs: $x) -> Self::Output {
+                    let mut out = BitSet::zero();
+                    let bucket_shift = (rhs / 64) as usize;
+                    let bit_shift = (rhs % 64) as usize;
+
+                    for i in bucket_shift..N {
+                        out.bits[i] = self.bits[i - bucket_shift] << bit_shift;
+                    }
+
+                    if bit_shift > 0 {
+                        for i in (bucket_shift + 1)..N {
+                            out.bits[i] |= self.bits[i - 1 - bucket_shift] >> (64 - bit_shift);
+                        }
+                    }
+
+                    out
+                }
+            }
+
+            impl<const N: usize> Shl<$x> for &BitSet<N> {
+                type Output = BitSet<N>;
+
+                fn shl(self, rhs: $x) -> Self::Output {
+                    let mut out = BitSet::zero();
+                    let bucket_shift = (rhs / 64) as usize;
+                    let bit_shift = (rhs % 64) as usize;
+
+                    for i in bucket_shift..N {
+                        out.bits[i] = self.bits[i - bucket_shift] << bit_shift;
+                    }
+
+                    if bit_shift > 0 {
+                        for i in (bucket_shift + 1)..N {
+                            out.bits[i] |= self.bits[i - 1 - bucket_shift] >> (64 - bit_shift);
+                        }
+                    }
+
+                    out
+                }
+            }
+
+            impl<const N: usize> ShlAssign<$x> for BitSet<N> {
+                fn shl_assign(&mut self, rhs: $x) {
+                    *self = *self << rhs;
+                }
+            }
+
+            impl<const N: usize> Shr<$x> for BitSet<N> {
+                type Output = BitSet<N>;
+
+                fn shr(self, rhs: $x) -> Self::Output {
+                    let mut out = BitSet::zero();
+                    let bucket_shift = (rhs / 64) as usize;
+                    let bit_shift = (rhs % 64) as usize;
+
+                    for i in bucket_shift..N {
+                        out.bits[i - bucket_shift] = self.bits[i] >> bit_shift;
+                    }
+
+                    if bit_shift > 0 {
+                        for i in (bucket_shift + 1)..N {
+                            out.bits[i - bucket_shift - 1] |= self.bits[i] << (64 - bit_shift);
+                        }
+                    }
+
+                    out
+                }
+            }
+
+            impl<const N: usize> Shr<$x> for &BitSet<N> {
+                type Output = BitSet<N>;
+
+                fn shr(self, rhs: $x) -> Self::Output {
+                    let mut out = BitSet::zero();
+                    let bucket_shift = (rhs / 64) as usize;
+                    let bit_shift = (rhs % 64) as usize;
+
+                    for i in bucket_shift..N {
+                        out.bits[i - bucket_shift] = self.bits[i] >> bit_shift;
+                    }
+
+                    if bit_shift > 0 {
+                        for i in (bucket_shift + 1)..N {
+                            out.bits[i - bucket_shift - 1] |= self.bits[i] << (64 - bit_shift);
+                        }
+                    }
+
+                    out
+                }
+            }
+
+            impl<const N: usize> ShrAssign<$x> for BitSet<N> {
+                fn shr_assign(&mut self, rhs: $x) {
+                    *self = *self >> rhs;
+                }
+            }
+        )*
+    };
+}
+
+impl_shifts!(u8, u16, u32, u64);
+
 pub struct BitSetIter<const N: usize> {
     set: BitSet<N>,
     index: usize,
@@ -368,6 +487,17 @@ impl<const N: usize> IntoIterator for BitSet<N> {
     }
 }
 
+impl<const N: usize> std::fmt::Display for BitSet<N> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "0b")?;
+        for bucket in self.bits.iter().rev() {
+            write!(f, "{:064b}", bucket)?;
+        }
+
+        Ok(())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -392,6 +522,7 @@ mod tests {
     fn bitset_iter() {
         let mut set = BitSet192::default();
 
+        set.insert(0);
         set.insert(20);
         set.insert(46);
         set.insert(100);
@@ -399,12 +530,59 @@ mod tests {
 
         let mut iter = set.iter();
 
+        assert_eq!(0, iter.next().unwrap());
         assert_eq!(20, iter.next().unwrap());
         assert_eq!(46, iter.next().unwrap());
         assert_eq!(100, iter.next().unwrap());
         assert_eq!(191, iter.next().unwrap());
         assert_eq!(None, iter.next());
 
-        assert_eq!(vec![20, 46, 100, 191], set.into_iter().collect::<Vec<_>>());
+        assert_eq!(
+            vec![0, 20, 46, 100, 191],
+            set.into_iter().collect::<Vec<_>>()
+        );
+    }
+
+    #[test]
+    fn disp() {
+        let mut set = BitSet192::zero();
+        set.set_lower(0b1110110);
+
+        let mut combined = set;
+
+        let st = set.to_string();
+        let expected = "0b000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001110110";
+        assert_eq!(&st, expected);
+
+        let shifted = set << 64_u32;
+        let st = shifted.to_string();
+        let expected = "0b000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000011101100000000000000000000000000000000000000000000000000000000000000000";
+        assert_eq!(&st, expected);
+        combined |= shifted;
+
+        let shifted = set << 128_u32;
+        let st = shifted.to_string();
+        let expected = "0b000000000000000000000000000000000000000000000000000000000111011000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+        assert_eq!(&st, expected);
+        combined |= shifted;
+
+        let shifted = set << 192_u32;
+        let st = shifted.to_string();
+        let expected = "0b000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+        assert_eq!(&st, expected);
+
+        let st = combined.to_string();
+        let expected = "0b000000000000000000000000000000000000000000000000000000000111011000000000000000000000000000000000000000000000000000000000011101100000000000000000000000000000000000000000000000000000000001110110";
+        assert_eq!(&st, expected);
+
+        let shifted = combined << 3_u32;
+        let st = shifted.to_string();
+        let expected = "0b000000000000000000000000000000000000000000000000000000111011000000000000000000000000000000000000000000000000000000000011101100000000000000000000000000000000000000000000000000000000001110110000";
+        assert_eq!(&st, expected);
+
+        let shifted = shifted >> 3_u32;
+        let st = shifted.to_string();
+        let expected = "0b000000000000000000000000000000000000000000000000000000000111011000000000000000000000000000000000000000000000000000000000011101100000000000000000000000000000000000000000000000000000000001110110";
+        assert_eq!(&st, expected);
     }
 }
