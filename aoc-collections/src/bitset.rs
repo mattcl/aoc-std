@@ -446,7 +446,7 @@ macro_rules! impl_shifts {
     };
 }
 
-impl_shifts!(u8, u16, u32, u64);
+impl_shifts!(u8, u16, u32, u64, usize);
 
 pub struct BitSetIter<const N: usize> {
     set: BitSet<N>,
