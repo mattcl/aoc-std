@@ -38,6 +38,9 @@ pub trait AocBound {
 
     /// normalize the given point relative to the min corner of the bound.
     fn normalize(&self, point: &Self::PointKind) -> Option<Self::PointKind>;
+
+    /// update the bounds with the given point
+    fn update(&mut self, point: &Self::PointKind);
 }
 
 /// A two-dimensional boundary.
@@ -121,6 +124,13 @@ where
         } else {
             None
         }
+    }
+
+    fn update(&mut self, point: &Self::PointKind) {
+        self.min_x = self.min_x.min(point.x);
+        self.min_y = self.min_y.min(point.y);
+        self.max_x = self.max_x.max(point.x);
+        self.max_y = self.max_y.max(point.y);
     }
 }
 
@@ -250,6 +260,15 @@ where
         } else {
             None
         }
+    }
+
+    fn update(&mut self, point: &Self::PointKind) {
+        self.min_x = self.min_x.min(point.x);
+        self.min_y = self.min_y.min(point.y);
+        self.min_z = self.min_z.min(point.z);
+        self.max_x = self.max_x.max(point.x);
+        self.max_y = self.max_y.max(point.y);
+        self.max_z = self.max_z.max(point.z);
     }
 }
 
@@ -383,6 +402,13 @@ where
             Some(new_point)
         } else {
             None
+        }
+    }
+
+    fn update(&mut self, point: &Self::PointKind) {
+        for i in 0..N {
+            self.dimensions[i][0] = self.dimensions[i][0].min(point[i]);
+            self.dimensions[i][1] = self.dimensions[i][1].max(point[i]);
         }
     }
 }
