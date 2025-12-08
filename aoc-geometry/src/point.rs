@@ -24,6 +24,9 @@ pub trait AocPoint {
 
     /// Calculate the manhattan distance between ourself and an Other.
     fn manhattan_dist(&self, other: &Self) -> Self::Output;
+
+    /// Calculate the squared euclidean distance between ourself and an Other.
+    fn euclidean_dist_sq(&self, other: &Self) -> Self::Output;
 }
 
 /// A point representing something like (x, y).
@@ -600,6 +603,12 @@ where
         // this is not as efficient, but it satisfies both signed and unsigned
         // values
         (self.x.max(other.x) - self.x.min(other.x)) + (self.y.max(other.y) - self.y.min(other.y))
+    }
+
+    fn euclidean_dist_sq(&self, other: &Self) -> Self::Output {
+        let x = self.x.max(other.x) - self.x.min(other.x);
+        let y = self.y.max(other.y) - self.y.min(other.y);
+        (x * x) + (y * y)
     }
 }
 
@@ -1191,6 +1200,13 @@ where
             + (self.y.max(other.y) - self.y.min(other.y))
             + (self.z.max(other.z) - self.z.min(other.z))
     }
+
+    fn euclidean_dist_sq(&self, other: &Self) -> Self::Output {
+        let x = self.x.max(other.x) - self.x.min(other.x);
+        let y = self.y.max(other.y) - self.y.min(other.y);
+        let z = self.z.max(other.z) - self.z.min(other.z);
+        (x * x) + (y * y) + (z * z)
+    }
 }
 
 /// A point of a numberic type comprised of N values.
@@ -1260,6 +1276,17 @@ where
             .iter()
             .zip(other.0.iter())
             .map(|(a, b)| *a.max(b) - *a.min(b))
+            .sum()
+    }
+
+    fn euclidean_dist_sq(&self, other: &Self) -> Self::Output {
+        self.0
+            .iter()
+            .zip(other.0.iter())
+            .map(|(a, b)| {
+                let x = *a.max(b) - *a.min(b);
+                x * x
+            })
             .sum()
     }
 }
@@ -1497,6 +1524,12 @@ impl AocPoint for Location {
 
     fn manhattan_dist(&self, other: &Self) -> Self::Output {
         self.row.abs_diff(other.row) + self.col.abs_diff(other.col)
+    }
+
+    fn euclidean_dist_sq(&self, other: &Self) -> Self::Output {
+        let row = self.row.abs_diff(other.row);
+        let col = self.col.abs_diff(other.col);
+        (row * row) + (col * col)
     }
 }
 
